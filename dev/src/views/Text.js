@@ -37,7 +37,7 @@ import Track from "../utils/Track";
 import app from "../app";
 
 export default class Text extends EventDispatcher {
-	constructor (el) {
+	constructor(el) {
 		super();
 		this.el = el;
 		this._initUI(el);
@@ -45,11 +45,11 @@ export default class Text extends EventDispatcher {
 		app.on("result", () => this._setResult(app.result));
 		app.theme.on("change", () => this._handleThemeChange());
 	}
-	
+
 	set value(val) {
 		this.editor.setValue(val || this.defaultText);
 	}
-	
+
 	get value() {
 		return this.editor.getValue();
 	}
@@ -69,7 +69,9 @@ export default class Text extends EventDispatcher {
 	}
 
 	set mode(val) {
-		if (val === this.mode) { return; }
+		if (val === this.mode) {
+			return;
+		}
 		this.modeList.selected = val || "text";
 		this._handleModeChange();
 	}
@@ -77,25 +79,33 @@ export default class Text extends EventDispatcher {
 	get mode() {
 		return this.modeList.selected;
 	}
-	
+
 	get selectedMatch() {
 		let cm = this.editor;
 		return this.getMatchAt(cm.indexFromPos(cm.getCursor()), true);
 	}
-	
+
 	getMatchValue(match) {
 		// this also works for groups.
 		return match ? this.value.substr(match.i, match.l) : null;
 	}
-	
+
 	getMatchAt(index, inclusive) {
 		// also used by TextHover
-		let match, offset=(inclusive ? -1 : 0), matches=this._result && this._result.matches;
-		if (!matches) { return null; }
+		let match,
+			offset = inclusive ? -1 : 0,
+			matches = this._result && this._result.matches;
+		if (!matches) {
+			return null;
+		}
 		for (let i = 0, l = matches.length; i < l; i++) {
 			match = matches[i];
-			if (match.l+match.i-1 < index + offset) { continue; }
-			if (match.i > index) { break; }
+			if (match.l + match.i - 1 < index + offset) {
+				continue;
+			}
+			if (match.i > index) {
+				break;
+			}
 			return match;
 		}
 		return null;
@@ -106,43 +116,62 @@ export default class Text extends EventDispatcher {
 			id: UID.id,
 			name: "",
 			text: "Enter your test text here.",
-			type: "any"
-		}
+			type: "any",
+		};
 	}
-	
-// private methods:
+
+	// private methods:
 	_initUI(el) {
 		this.resultEl = $.query("> header .result", el);
-		this.resultEl.addEventListener("mouseenter", (evt)=>this._mouseResult(evt));
-		this.resultEl.addEventListener("mouseleave", (evt)=>this._mouseResult(evt));
+		this.resultEl.addEventListener("mouseenter", (evt) =>
+			this._mouseResult(evt)
+		);
+		this.resultEl.addEventListener("mouseleave", (evt) =>
+			this._mouseResult(evt)
+		);
 
 		this.modeListEl = $.query("> header .modelist", el);
-		let data = ["Text", "Tests"].map((val) => ({label:val, id:val.toLowerCase()}));
-		this.modeList = new List(this.modeListEl, {data});
-		this.modeList.on("change", ()=> this._handleModeChange());
+		let data = ["Text", "Tests"].map((val) => ({
+			label: val,
+			id: val.toLowerCase(),
+		}));
+		this.modeList = new List(this.modeListEl, { data });
+		this.modeList.on("change", () => this._handleModeChange());
 		this.modeList.selected = "text";
-		
+
 		let textEl = $.query(".editor > .pad", el);
 		this.defaultText = $.query("textarea", textEl).value;
-		let editor = this.editor = CMUtils.create($.empty(textEl), {lineWrapping: true}, "100%", "100%");
+		let editor = (this.editor = CMUtils.create(
+			$.empty(textEl),
+			{ lineWrapping: true },
+			"100%",
+			"100%"
+		));
 		editor.setValue(this.defaultText);
-		
-		editor.on("change", ()=> this._change());
-		editor.on("scroll", ()=> this._update());
+
+		editor.on("change", () => this._change());
+		editor.on("scroll", () => this._update());
 		editor.on("cursorActivity", () => this._updateSelected());
-		
-		let detector = $.create("iframe", "resizedetector", null, textEl), win = detector.contentWindow;
-		let canvas = this.canvas = $.create("canvas", "highlights", null, textEl);
+
+		let detector = $.create("iframe", "resizedetector", null, textEl),
+			win = detector.contentWindow;
+		let canvas = (this.canvas = $.create("canvas", "highlights", null, textEl));
 		textEl.appendChild(editor.display.wrapper); // move the editor on top of the iframe & canvas.
 
-		win.onresize = ()=> {
-			let w = win.innerWidth|0, h = win.innerHeight|0;
+		win.onresize = () => {
+			let w = win.innerWidth | 0,
+				h = win.innerHeight | 0;
 			this._startResize();
 			Utils.defer(() => this._handleResize(w, h), "text_resize", 250);
 		};
 		win.onresize();
-		
-		this.highlighter = new TextHighlighter(editor, canvas, $.getCSSValue("match", "color"), $.getCSSValue("selected-stroke", "color"));
+
+		this.highlighter = new TextHighlighter(
+			editor,
+			canvas,
+			$.getCSSValue("match", "color"),
+			$.getCSSValue("selected-stroke", "color")
+		);
 		this.hover = new TextHover(editor, this.highlighter);
 	}
 
@@ -154,45 +183,56 @@ export default class Text extends EventDispatcher {
 
 	_handleModeChange(evt) {
 		this.dispatchEvent("modechange");
-		if (this.mode === "text") { this.editor.refresh(); }
-		else { $.addClass(this.el, "tests-viewed"); }
+		if (this.mode === "text") {
+			this.editor.refresh();
+		} else {
+			$.addClass(this.el, "tests-viewed");
+		}
 
-		Track.page("mode/"+this.mode);
+		Track.page("mode/" + this.mode);
 	}
-	
+
 	_setResult(val) {
 		this._result = val;
 		this._testMatches = null;
 
-		if (this.mode !== val.mode) { return; }
+		if (this.mode !== val.mode) {
+			return;
+		}
 		if (val.mode === "tests") {
 			this._updateTests();
-		} else { // mode === "text"
+		} else {
+			// mode === "text"
 			this._updateEmptyCount();
 			this._updateResult();
 			this._updateSelected();
 			this._deferUpdate();
 		}
 	}
-	
+
 	_deferUpdate() {
-		Utils.defer(()=>this._update(), "Text._update");
+		Utils.defer(() => this._update(), "Text._update");
 	}
-	
+
 	_update() {
-		let result = this._result, matches = result && result.matches;
+		let result = this._result,
+			matches = result && result.matches;
 		if (result && result.mode === "tests") {
 			this._updateTests();
-		} else { // mode === "text"
+		} else {
+			// mode === "text"
 			this.hover.matches = this.highlighter.matches = matches;
 		}
 	}
-	
+
 	_updateResult() {
-		let result = this._result, matches=result&&result.matches, l=matches&&matches.length, text;
-		
+		let result = this._result,
+			matches = result && result.matches,
+			l = matches && matches.length,
+			text;
+
 		if (l && result && !result.error) {
-			text = l + " match" + (l>1?"es":"") + (this._emptyCount?"*":"");
+			text = l + " match" + (l > 1 ? "es" : "") + (this._emptyCount ? "*" : "");
 		} else if (!result || !result.error) {
 			text = "No match";
 		}
@@ -200,81 +240,132 @@ export default class Text extends EventDispatcher {
 	}
 
 	_showResult(text, clss) {
-		let result = this._result, el = this.resultEl;
+		let result = this._result,
+			el = this.resultEl;
 		$.removeClass(el, "error warning matches pass fail");
 
 		if (result && result.error) {
-			if (!text) { text = result.error.warning ? "WARNING" : "ERROR"; }
+			if (!text) {
+				text = result.error.warning ? "WARNING" : "ERROR";
+			}
 			$.addClass(el, "error");
-			if (result.error.warning) { $.addClass(el, "warning"); }
+			if (result.error.warning) {
+				$.addClass(el, "warning");
+			}
 		}
 
-		if (clss) { $.addClass(el, clss); }
+		if (clss) {
+			$.addClass(el, clss);
+		}
 		el.innerHTML = text;
-		if (result.time != null) {  el.innerHTML += "<em> ("+parseFloat(result.time).toFixed(1)+"ms)</em>"; }
+		if (result.time != null) {
+			el.innerHTML +=
+				"<em> (" + parseFloat(result.time).toFixed(1) + "ms)</em>";
+		}
 	}
-	
+
 	_updateSelected() {
 		let match = this.selectedMatch;
-		if (this.highlighter.selectedMatch === match) { return; }
+		if (this.highlighter.selectedMatch === match) {
+			return;
+		}
 		this.highlighter.selectedMatch = match;
 		this.dispatchEvent("select");
 	}
-	
+
 	_change() {
 		this.dispatchEvent("change");
 	}
 
 	_startResize() {
-		let canvas = this.canvas, style=canvas.style;
+		let canvas = this.canvas,
+			style = canvas.style;
 		style.visibility = "hidden";
 		style.opacity = 0;
 		// keeps it from causing scrollbars:
 		canvas.width = canvas.height = 1;
 	}
-	
+
 	_mouseResult(evt) {
-		let tt = app.tooltip.hover, res=this._result, err = res&&res.error, str="";
-		if (evt.type === "mouseleave") { return tt.hide("result"); }
+		let tt = app.tooltip.hover,
+			res = this._result,
+			err = res && res.error,
+			str = "";
+		if (evt.type === "mouseleave") {
+			return tt.hide("result");
+		}
 		if (err && !err.warning) {
 			str = "<span class='error'>EXEC ERROR:</span> " + this._errorText(err);
 		} else {
 			if (err && err.warning) {
-				str = "<span class='error warning'>WARNING:</span> "+ this._errorText(err) + "<hr>";
+				str =
+					"<span class='error warning'>WARNING:</span> " +
+					this._errorText(err) +
+					"<hr>";
 			}
 			let l = this._tests.length;
 			if (this.mode === "tests") {
 				if (this._tests.length === 0) {
 					str += "Use the 'Add Test' button to create a new test.";
 				} else if (this._testFails) {
-					str += this._testFails+" out of "+l+" tests failed.";
+					str += this._testFails + " out of " + l + " tests failed.";
 				} else {
-					str += "All "+l+" tests passed.";
+					str += "All " + l + " tests passed.";
 				}
 			} else {
-				str += (l||"No")+" match"+(l>1?"es":"")+" found in "+this.value.length+" characters";
-				str += this._emptyCount  ? ", including "+this._emptyCount+" empty matches (* not displayed)." : ".";
-				let cm = this.editor, sel = cm.listSelections()[0], pos = sel.head;
-				let i0 = cm.indexFromPos(pos), i1=cm.indexFromPos(sel.anchor), range=Math.abs(i0-i1);
-				str += "<hr>Insertion point: line "+pos.line+", col "+pos.ch+", index "+i0;
-				str += (range>0 ? " ("+range+" character"+(range===1?"":"s")+" selected)" : "");
+				str +=
+					(l || "No") +
+					" match" +
+					(l > 1 ? "es" : "") +
+					" found in " +
+					this.value.length +
+					" characters";
+				str += this._emptyCount
+					? ", including " +
+					  this._emptyCount +
+					  " empty matches (* not displayed)."
+					: ".";
+				let cm = this.editor,
+					sel = cm.listSelections()[0],
+					pos = sel.head;
+				let i0 = cm.indexFromPos(pos),
+					i1 = cm.indexFromPos(sel.anchor),
+					range = Math.abs(i0 - i1);
+				str +=
+					"<hr>Insertion point: line " +
+					pos.line +
+					", col " +
+					pos.ch +
+					", index " +
+					i0;
+				str +=
+					range > 0
+						? " (" +
+						  range +
+						  " character" +
+						  (range === 1 ? "" : "s") +
+						  " selected)"
+						: "";
 			}
-			
 		}
 		tt.showOn("result", str, this.resultEl, false, -2);
 	}
 
 	_updateEmptyCount() {
-		let result = this._result, matches = result && result.matches;
-		this._emptyCount = matches ? matches.reduce((v,o)=>v+(o.l?0:1),0) : 0;
+		let result = this._result,
+			matches = result && result.matches;
+		this._emptyCount = matches
+			? matches.reduce((v, o) => v + (o.l ? 0 : 1), 0)
+			: 0;
 	}
 
 	_errorText(err) {
 		return err.message || app.reference.getError(err);
 	}
-	
+
 	_handleResize(w, h) {
-		let canvas = this.canvas, style=canvas.style;
+		let canvas = this.canvas,
+			style = canvas.style;
 		style.visibility = style.opacity = "";
 		canvas.width = w;
 		canvas.height = h;
@@ -282,76 +373,107 @@ export default class Text extends EventDispatcher {
 		this._deferUpdate();
 	}
 
-// Test mode:
+	// Test mode:
 	_initTestUI(el) {
 		const types = [
-			{id:"all", label:"Match Full"},
-			{id:"any", label:"Match Any"},
+			{ id: "all", label: "Match Full" },
+			{ id: "any", label: "Match Any" },
 			// {id:"start", label:"Match Start"},
-			{id:"none", label:"Match None"},
+			{ id: "none", label: "Match None" },
 		];
-		this.typeLabels = types.reduce((o, t) => { o[t.id] = t.label; return o; }, {});
+		this.typeLabels = types.reduce((o, t) => {
+			o[t.id] = t.label;
+			return o;
+		}, {});
 
 		this.testsEl = $.query(".tests", el);
 		this.testItemEl = $.query("#library > #tests_item");
 		this.testListEl = $.query(".list", this.testsEl);
-		this.testList = new List(this.testListEl, {template:(o) => this._testItemTemplate(o)});
+		this.testList = new List(this.testListEl, {
+			template: (o) => this._testItemTemplate(o),
+		});
 		this.testList.scrollEl = this.testsEl;
 
 		this.testList.on("change", (evt) => this._handleTestChange(evt));
 
-		$.on($.queryAll(".button.add", el), "click", ()=>this._addTest());
+		$.on($.queryAll(".button.add", el), "click", () => this._addTest());
 
 		const template = $.template`<svg class="inline check icon"><use xlink:href="#check"></use></svg> ${"label"}`;
 		this.typesEl = $.query("#library #tooltip-testtypes");
-		this.typesList = new List($.query("ul.list", this.typesEl), {data:types, template});
-		this.typesList.on("change", ()=> this._handleTypesChange());
+		this.typesList = new List($.query("ul.list", this.typesEl), {
+			data: types,
+			template,
+		});
+		this.typesList.on("change", () => this._handleTypesChange());
 
 		this.tests = null;
 	}
 
 	_updateTests() {
 		let result = this._result;
-		if (result.error) { return this._showResult(); }
+		if (result.error) {
+			return this._showResult();
+		}
 
-		let data = this._tests, l=data.length;
-		if (!data || !l) { return this._showResult("No tests."); }
-		
-		let matches = result.matches.reduce((o, t) => { o[t.id] = t; return o; }, {}), fails=0;
-		for (let i=0; i<l; i++) {
-			let test = data[i], match=matches[test.id], pass=false, el=this.testList.getEl(test.id);
+		let data = this._tests,
+			l = data.length;
+		if (!data || !l) {
+			return this._showResult("No tests.");
+		}
+
+		let matches = result.matches.reduce((o, t) => {
+				o[t.id] = t;
+				return o;
+			}, {}),
+			fails = 0;
+		for (let i = 0; i < l; i++) {
+			let test = data[i],
+				match = matches[test.id],
+				pass = false,
+				el = this.testList.getEl(test.id);
 			if (test.type === "none") {
-				pass = (match.i == null);
+				pass = match.i == null;
 			} else if (test.type === "all") {
-				pass = (match.l === test.text.length);
+				pass = match.l === test.text.length;
 			} else if (test.type === "start") {
-				pass = (match.i === 0);
-			} else { // any
-				pass = (match.i != null);
+				pass = match.i === 0;
+			} else {
+				// any
+				pass = match.i != null;
 			}
 			$.toggleClass(el, "fail", !pass);
-			if (!pass) { fails++; }
+			if (!pass) {
+				fails++;
+			}
 		}
 
 		this._testFails = fails;
 		this._testMatches = matches;
 		if (fails) {
-			this._showResult(fails+" FAILED", "fail");
+			this._showResult(fails + " FAILED", "fail");
 		} else {
 			this._showResult("PASSED", "pass");
 		}
-		
+
 		this._updateSelTest();
 	}
 
 	_updateSelTest() {
-		if (this._testMark) { this._testMark.clear(); }
-		let matches = this._testMatches, el = this.testList.selectedEl;
-		if (!el || !matches) { return; }
-		let match = matches[this.testList.selected], cm = this.testEditor;
+		if (this._testMark) {
+			this._testMark.clear();
+		}
+		let matches = this._testMatches,
+			el = this.testList.selectedEl;
+		if (!el || !matches) {
+			return;
+		}
+		let match = matches[this.testList.selected],
+			cm = this.testEditor;
 		if (match && match.i != null) {
 			let pos = CMUtils.calcRangePos(cm, match.i, match.l);
-			this._testMark = this.testEditor.getDoc().markText(pos.startPos, pos.endPos, {className:"match"});
+			this._testMark = this.testEditor
+				.getDoc()
+				.markText(pos.startPos, pos.endPos, { className: "match" });
 		}
 	}
 
@@ -364,7 +486,9 @@ export default class Text extends EventDispatcher {
 		delBtn.addEventListener("click", (evt) => this._deleteTest(o));
 
 		let nameFld = $.query("header .name", el);
-		nameFld.addEventListener("input", () => this._handleTestNameChange(nameFld, o));
+		nameFld.addEventListener("input", () =>
+			this._handleTestNameChange(nameFld, o)
+		);
 
 		this._updateTestHeader(o, el, false);
 
@@ -373,8 +497,9 @@ export default class Text extends EventDispatcher {
 
 	_updateTestHeader(o, el, edit) {
 		let nameFld = $.query("header .name", el);
-		nameFld.value = o.name||"";
-		nameFld.placeholder = o.text && !edit ? o.text.substr(0, 100) : "Untitled Test";
+		nameFld.value = o.name || "";
+		nameFld.placeholder =
+			o.text && !edit ? o.text.substr(0, 100) : "Untitled Test";
 
 		let typeLbl = $.query("header .button.type .label", el);
 		typeLbl.innerText = this.typeLabels[o.type];
@@ -412,7 +537,9 @@ export default class Text extends EventDispatcher {
 		el = this.testList.selectedEl;
 		o = this._selTest = this.testList.selectedItem;
 
-		if (!o) { return; }
+		if (!o) {
+			return;
+		}
 
 		this._getTestEditor($.query("article .editor .pad", el), o);
 		this._updateTestHeader(o, el, true);
@@ -427,7 +554,8 @@ export default class Text extends EventDispatcher {
 	}
 
 	_handleTypesChange() {
-		let el = this.testList.selectedEl, o = this.testList.selectedItem;
+		let el = this.testList.selectedEl,
+			o = this.testList.selectedItem;
 		o.type = this.typesList.selectedItem.id;
 		app.tooltip.toggle.hide("testtypes");
 		this._updateTestHeader(o, el, true);
@@ -436,7 +564,9 @@ export default class Text extends EventDispatcher {
 
 	_handleTestTextChange(change) {
 		this._selTest.text = this.testEditor.getValue();
-		if (change.origin !== "setValue") { this._change(); }
+		if (change.origin !== "setValue") {
+			this._change();
+		}
 	}
 
 	_showTypes(el, o) {
@@ -450,7 +580,9 @@ export default class Text extends EventDispatcher {
 		data.splice(i, 1);
 		this._selTest = null;
 		this.testList.removeItem(o.id);
-		if (data.length) { this.testList.selected = data[Math.min(i, data.length-1)].id; }
+		if (data.length) {
+			this.testList.selected = data[Math.min(i, data.length - 1)].id;
+		}
 		this._updateTests();
 		this._handleTestChange();
 		this._change();
@@ -459,7 +591,12 @@ export default class Text extends EventDispatcher {
 	_getTestEditor(el, o) {
 		let cm = this.testEditor;
 		if (!cm) {
-			cm = this.testEditor = CMUtils.create($.empty(el), {lineWrapping: true}, "100%", "100%");
+			cm = this.testEditor = CMUtils.create(
+				$.empty(el),
+				{ lineWrapping: true },
+				"100%",
+				"100%"
+			);
 			cm.on("change", (a, b) => this._handleTestTextChange(b));
 		} else {
 			el.appendChild(cm.getWrapperElement());

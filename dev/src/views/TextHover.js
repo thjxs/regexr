@@ -22,14 +22,14 @@ import $ from "../utils/DOMUtils";
 import app from "../app";
 
 export default class TextHover {
-	constructor (editor, highlighter) {
+	constructor(editor, highlighter) {
 		this.editor = editor;
 		this.highlighter = highlighter;
 		this._matches = this._x = null;
-		
+
 		let o = editor.display.lineDiv;
-		o.addEventListener("mousemove", (evt)=> this._handleMouseMove(evt));
-		o.addEventListener("mouseout", (evt)=> this._handleMouseOut(evt));
+		o.addEventListener("mousemove", (evt) => this._handleMouseMove(evt));
+		o.addEventListener("mouseout", (evt) => this._handleMouseOut(evt));
 	}
 
 	set matches(val) {
@@ -37,13 +37,13 @@ export default class TextHover {
 		this._update();
 	}
 
-// private methods:
+	// private methods:
 	_handleMouseMove(evt) {
 		this._x = evt.clientX;
 		this._y = evt.clientY + window.pageYOffset;
 		this._update();
 	}
-	
+
 	_handleMouseOut(evt) {
 		this._x = null;
 		this._update();
@@ -55,18 +55,28 @@ export default class TextHover {
 			app.tooltip.hover.hide("TextHover");
 			return;
 		}
-		let index, cm = this.editor, match, matches = this._matches, x = this._x, y = this._y;
-		
-		if (matches && matches.length && (index = CMUtils.getCharIndexAt(cm, x, y)) != null) {
+		let index,
+			cm = this.editor,
+			match,
+			matches = this._matches,
+			x = this._x,
+			y = this._y;
+
+		if (
+			matches &&
+			matches.length &&
+			(index = CMUtils.getCharIndexAt(cm, x, y)) != null
+		) {
 			match = this.highlighter.hoverMatch = app.text.getMatchAt(index);
 		}
-		let rect = (index != null) && CMUtils.getCharRect(cm, index);
-		if (rect) { rect.right = rect.left = x; }
+		let rect = index != null && CMUtils.getCharRect(cm, index);
+		if (rect) {
+			rect.right = rect.left = x;
+		}
 		let tip = app.reference.tipForMatch(match, cm.getValue());
 		if (tip) {
 			let div = $.create("div", "texthover", tip);
 			app.tooltip.hover.show("TextHover", div, x, rect.bottom, true, 0);
 		}
-		
 	}
 }

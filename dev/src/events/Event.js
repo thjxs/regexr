@@ -1,30 +1,30 @@
 /*
-* Event
-* Visit http://createjs.com/ for documentation, updates and examples.
-*
-* Copyright (c) 2010 gskinner.com, inc.
-*
-* Permission is hereby granted, free of charge, to any person
-* obtaining a copy of this software and associated documentation
-* files (the "Software"), to deal in the Software without
-* restriction, including without limitation the rights to use,
-* copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the
-* Software is furnished to do so, subject to the following
-* conditions:
-*
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-* OTHER DEALINGS IN THE SOFTWARE.
-*/
+ * Event
+ * Visit http://createjs.com/ for documentation, updates and examples.
+ *
+ * Copyright (c) 2010 gskinner.com, inc.
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ */
 
 /**
  * A collection of Classes that are shared across all the CreateJS libraries.  The classes are included in the minified
@@ -38,11 +38,10 @@
  * @main CreateJS
  */
 
-
 /**
  * Contains properties and methods shared by all events for use with
  * {{#crossLink "EventDispatcher"}}{{/crossLink}}.
- * 
+ *
  * Note that Event objects are often reused, so you should never
  * rely on an event object's state outside of the call stack it was received in.
  * @class Event
@@ -52,26 +51,24 @@
  * @constructor
  **/
 export default class Event {
-		
-	
 	constructor(type, bubbles, cancelable) {
-	// public properties:
+		// public properties:
 		/**
 		 * The type of event.
 		 * @property type
 		 * @type String
 		 **/
 		this.type = type;
-	
+
 		/**
 		 * The object that generated an event.
 		 * @property target
 		 * @type Object
 		 * @default null
 		 * @readonly
-		*/
+		 */
 		this.target = null;
-	
+
 		/**
 		 * The current target that a bubbling event is being dispatched from. For non-bubbling events, this will
 		 * always be the same as target. For example, if childObj.parent = parentObj, and a bubbling event
@@ -81,9 +78,9 @@ export default class Event {
 		 * @type Object
 		 * @default null
 		 * @readonly
-		*/
+		 */
 		this.currentTarget = null;
-	
+
 		/**
 		 * For bubbling events, this indicates the current event phase:<OL>
 		 * 	<LI> capture phase: starting from the top parent to the target</LI>
@@ -94,18 +91,18 @@ export default class Event {
 		 * @type Number
 		 * @default 0
 		 * @readonly
-		*/
+		 */
 		this.eventPhase = 0;
-	
+
 		/**
 		 * Indicates whether the event will bubble through the display list.
 		 * @property bubbles
 		 * @type Boolean
 		 * @default false
 		 * @readonly
-		*/
+		 */
 		this.bubbles = !!bubbles;
-	
+
 		/**
 		 * Indicates whether the default behaviour of this event can be cancelled via
 		 * {{#crossLink "Event/preventDefault"}}{{/crossLink}}. This is set via the Event constructor.
@@ -113,18 +110,18 @@ export default class Event {
 		 * @type Boolean
 		 * @default false
 		 * @readonly
-		*/
+		 */
 		this.cancelable = !!cancelable;
-	
+
 		/**
 		 * The epoch time at which this event was created.
 		 * @property timeStamp
 		 * @type Number
 		 * @default 0
 		 * @readonly
-		*/
-		this.timeStamp = (new Date()).getTime();
-	
+		 */
+		this.timeStamp = new Date().getTime();
+
 		/**
 		 * Indicates if {{#crossLink "Event/preventDefault"}}{{/crossLink}} has been called
 		 * on this event.
@@ -132,9 +129,9 @@ export default class Event {
 		 * @type Boolean
 		 * @default false
 		 * @readonly
-		*/
+		 */
 		this.defaultPrevented = false;
-	
+
 		/**
 		 * Indicates if {{#crossLink "Event/stopPropagation"}}{{/crossLink}} or
 		 * {{#crossLink "Event/stopImmediatePropagation"}}{{/crossLink}} has been called on this event.
@@ -142,9 +139,9 @@ export default class Event {
 		 * @type Boolean
 		 * @default false
 		 * @readonly
-		*/
+		 */
 		this.propagationStopped = false;
-	
+
 		/**
 		 * Indicates if {{#crossLink "Event/stopImmediatePropagation"}}{{/crossLink}} has been called
 		 * on this event.
@@ -152,20 +149,20 @@ export default class Event {
 		 * @type Boolean
 		 * @default false
 		 * @readonly
-		*/
+		 */
 		this.immediatePropagationStopped = false;
-		
+
 		/**
 		 * Indicates if {{#crossLink "Event/remove"}}{{/crossLink}} has been called on this event.
 		 * @property removed
 		 * @type Boolean
 		 * @default false
 		 * @readonly
-		*/
+		 */
 		this.removed = false;
 	}
 
-// public methods:
+	// public methods:
 	/**
 	 * Sets {{#crossLink "Event/defaultPrevented"}}{{/crossLink}} to true if the event is cancelable.
 	 * Mirrors the DOM level 2 event standard. In general, cancelable events that have `preventDefault()` called will
@@ -173,8 +170,8 @@ export default class Event {
 	 * @method preventDefault
 	 **/
 	preventDefault() {
-		this.defaultPrevented = this.cancelable&&true;
-	};
+		this.defaultPrevented = this.cancelable && true;
+	}
 
 	/**
 	 * Sets {{#crossLink "Event/propagationStopped"}}{{/crossLink}} to true.
@@ -183,7 +180,7 @@ export default class Event {
 	 **/
 	stopPropagation() {
 		this.propagationStopped = true;
-	};
+	}
 
 	/**
 	 * Sets {{#crossLink "Event/propagationStopped"}}{{/crossLink}} and
@@ -193,22 +190,22 @@ export default class Event {
 	 **/
 	stopImmediatePropagation() {
 		this.immediatePropagationStopped = this.propagationStopped = true;
-	};
-	
+	}
+
 	/**
 	 * Causes the active listener to be removed via removeEventListener();
-	 * 
+	 *
 	 * 		myBtn.addEventListener("click", function(evt) {
 	 * 			// do stuff...
 	 * 			evt.remove(); // removes this listener.
 	 * 		});
-	 * 
+	 *
 	 * @method remove
 	 **/
 	remove() {
 		this.removed = true;
-	};
-	
+	}
+
 	/**
 	 * Returns a clone of the Event instance.
 	 * @method clone
@@ -216,8 +213,8 @@ export default class Event {
 	 **/
 	clone() {
 		return new Event(this.type, this.bubbles, this.cancelable);
-	};
-	
+	}
+
 	/**
 	 * Provides a chainable shortcut method for setting a number of properties on the instance.
 	 *
@@ -225,11 +222,13 @@ export default class Event {
 	 * @param {Object} props A generic object containing properties to copy to the instance.
 	 * @return {Event} Returns the instance the method is called on (useful for chaining calls.)
 	 * @chainable
-	*/
+	 */
 	set(props) {
-		for (let n in props) { this[n] = props[n]; }
+		for (let n in props) {
+			this[n] = props[n];
+		}
 		return this;
-	};
+	}
 
 	/**
 	 * Returns a string representation of this object.
@@ -237,6 +236,6 @@ export default class Event {
 	 * @return {String} a string representation of the instance.
 	 **/
 	toString() {
-		return "[Event (type="+this.type+")]";
-	};
+		return "[Event (type=" + this.type + ")]";
+	}
 }

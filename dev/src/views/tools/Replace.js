@@ -24,14 +24,14 @@ export default class Replace {
 	constructor(el, cm) {
 		this.el = el;
 		this.editor = cm;
-		
+
 		this._bound_handleEvent = (evt) => this._handleEvent(evt);
 		app.addEventListener("result", this._bound_handleEvent);
-		
+
 		this._initUI();
 		this._update();
 	}
-	
+
 	cleanup() {
 		$.empty(this.el);
 		this.output.value = "";
@@ -39,19 +39,20 @@ export default class Replace {
 		app.removeEventListener("result", this._bound_handleEvent);
 		Utils.defer(null, "Replace._update");
 	}
-	
-// private methods:
+
+	// private methods:
 	_initUI() {
 		this.output = $.create("textarea", null, null, this.el);
 		this.output.readOnly = true;
 	}
-	
+
 	_update() {
-		let o = app.result && app.result.tool, result = o&&o.result;
+		let o = app.result && app.result.tool,
+			result = o && o.result;
 		this.output.value = result || "no result";
 	}
 
 	_handleEvent(evt) {
-		Utils.defer(()=>this._update(), "Replace._update");
+		Utils.defer(() => this._update(), "Replace._update");
 	}
 }

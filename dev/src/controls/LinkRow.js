@@ -26,9 +26,9 @@ export default class LinkRow {
 		this._initUI();
 		this.url = null;
 	}
-	
+
 	set pattern(val) {
-		let url = Utils.getPatternURLStr(val)
+		let url = Utils.getPatternURLStr(val);
 		this._pattern = val;
 		$.query(".url", this.el).innerText = url || "";
 		$.toggleClass(this.el, "disabled", !url);
@@ -37,24 +37,53 @@ export default class LinkRow {
 
 	showMessage(message) {
 		// for some reason this displays one line too low if it's synchronous:
-		setTimeout(()=>app.tooltip.toggle.showOn("linkrow", message, $.query(".copy.icon", this.el), true, 0), 1);
+		setTimeout(
+			() =>
+				app.tooltip.toggle.showOn(
+					"linkrow",
+					message,
+					$.query(".copy.icon", this.el),
+					true,
+					0
+				),
+			1
+		);
 	}
 
 	_initUI() {
 		this.el.onclick = (evt) => this._onClick(evt);
 
-		let fld=$.query(".url", this.el), copyBtn = $.query(".copy", this.el);
+		let fld = $.query(".url", this.el),
+			copyBtn = $.query(".copy", this.el);
 		let clipboard = new Clipboard(copyBtn, { target: () => fld });
-		clipboard.on("success", () => app.tooltip.toggle.toggleOn("copy", "Copied to clipboard.", copyBtn, true, 3));
-		clipboard.on("error", (e) => app.tooltip.toggle.toggleOn("copy", Utils.getCtrlKey()+"-C to copy.", copyBtn, true, 3)); // TODO: cmd/ctrl
+		clipboard.on("success", () =>
+			app.tooltip.toggle.toggleOn(
+				"copy",
+				"Copied to clipboard.",
+				copyBtn,
+				true,
+				3
+			)
+		);
+		clipboard.on("error", (e) =>
+			app.tooltip.toggle.toggleOn(
+				"copy",
+				Utils.getCtrlKey() + "-C to copy.",
+				copyBtn,
+				true,
+				3
+			)
+		); // TODO: cmd/ctrl
 	}
 
 	_onClick(evt) {
-		if ($.query(".copy", this.el).contains(evt.target)) { return; }
+		if ($.query(".copy", this.el).contains(evt.target)) {
+			return;
+		}
 		if (evt.which === 2 || evt.metaKey || evt.ctrlKey) {
 			window.open(Utils.getPatternURL(this._pattern));
 		} else {
 			app.load(this._pattern);
 		}
 	}
-};
+}

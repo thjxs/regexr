@@ -26,49 +26,59 @@ import app from "../app";
 
 // also used for My Patterns.
 export default class CommunityContent {
-	constructor (el) {
+	constructor(el) {
 		this.el = el;
 		this.example = new Example();
 		el.appendChild(this.example.el);
-		$.query(".icon.thumbup", el).addEventListener("click", ()=>this._rate(1));
-		$.query(".icon.thumbdown", el).addEventListener("click", ()=>this._rate(-1));
-		$.query(".icon.favorites", el).addEventListener("click", ()=>this._favorite());
-		this.linkRow = new LinkRow($.query(".row.link", el))
-		$.query(".icon.share", el).addEventListener("click", ()=>this._share());
+		$.query(".icon.thumbup", el).addEventListener("click", () => this._rate(1));
+		$.query(".icon.thumbdown", el).addEventListener("click", () =>
+			this._rate(-1)
+		);
+		$.query(".icon.favorites", el).addEventListener("click", () =>
+			this._favorite()
+		);
+		this.linkRow = new LinkRow($.query(".row.link", el));
+		$.query(".icon.share", el).addEventListener("click", () => this._share());
 	}
-	
+
 	set item(o) {
 		let el = this.el;
 		this._pattern = o;
-		$.query(".author", el).innerText = o.author ? "by "+o.author  : "";
+		$.query(".author", el).innerText = o.author ? "by " + o.author : "";
 		$.query(".name.label", el).innerText = o.name;
-		$.query(".desc", el).innerText = o.description || "No description available.";
+		$.query(".desc", el).innerText =
+			o.description || "No description available.";
 		this._updateRating();
 		this._updateFavorite();
 		this.example.example = [o.expression, o.text];
 
 		this.linkRow.pattern = o;
 	}
-	
-// private methods:
+
+	// private methods:
 	_updateRating() {
-		let o = this._pattern, el = this.el;
+		let o = this._pattern,
+			el = this.el;
 		$.query(".rating", el).innerText = o.rating.toFixed(1);
 		$.removeClass($.query(".icon.rate.selected", el), "selected");
-		if (o.userRating === 1) { $.addClass($.query(".icon.thumbup", el), "selected"); }
-		else if (o.userRating === -1) { $.addClass($.query(".icon.thumbdown", el), "selected"); }
+		if (o.userRating === 1) {
+			$.addClass($.query(".icon.thumbup", el), "selected");
+		} else if (o.userRating === -1) {
+			$.addClass($.query(".icon.thumbdown", el), "selected");
+		}
 	}
 
 	_updateFavorite() {
-		let o = this._pattern, el = this.el;
+		let o = this._pattern,
+			el = this.el;
 		$.toggleClass($.query(".icon.favorites", el), "selected", !!o.favorite);
 	}
 
 	_rate(val) {
 		let o = this._pattern;
-		o.userRating =  (val === o.userRating) ? 0 : val;
+		o.userRating = val === o.userRating ? 0 : val;
 		this._updateRating();
-		
+
 		Server.rate(o.id, o.userRating).then((data) => this._handleRate(data));
 	}
 
@@ -86,7 +96,9 @@ export default class CommunityContent {
 
 	_favorite() {
 		let o = this._pattern;
-		Server.favorite(o.id, !o.favorite).then((data) => this._handleFavorite(data));
+		Server.favorite(o.id, !o.favorite).then((data) =>
+			this._handleFavorite(data)
+		);
 	}
 
 	_handleFavorite(data) {
@@ -95,5 +107,4 @@ export default class CommunityContent {
 			this._updateFavorite();
 		}
 	}
-
 }

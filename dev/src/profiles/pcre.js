@@ -19,51 +19,61 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 /*
 The PCRE profile is almost a straight copy of the core profile.
 */
-let y=true, n=false;
+let y = true,
+	n = false;
 
 let pcre = {
 	id: "pcre",
 	label: "PCRE",
 	browser: false,
-	
+
 	flags: {
-		"u": n,
-		"y": n
+		u: n,
+		y: n,
 	},
-	
-	badEscChars: "uUlLN".split("").reduce((o, c) => { o[c] = y; return o}, {}),
+
+	badEscChars: "uUlLN".split("").reduce((o, c) => {
+		o[c] = y;
+		return o;
+	}, {}),
 
 	escCharCodes: {
-		"v": n // vertical tab // PCRE support \v as vertical whitespace
+		v: n, // vertical tab // PCRE support \v as vertical whitespace
 	},
-	
+
 	tokens: {
-		"escunicodeu": n, // \uFFFF
-		"escunicodeub": n, // \u{00A9}
+		escunicodeu: n, // \uFFFF
+		escunicodeub: n, // \u{00A9}
 		// octalo PCRE 8.34+
 	},
-	
+
 	substTokens: {
-		"subst_$esc": n, // $$
+		subst_$esc: n, // $$
 		"subst_$&match": n, // $&
-		"subst_$before": n, // $`
-		"subst_$after": n // $'
+		subst_$before: n, // $`
+		subst_$after: n, // $'
 	},
-	
+
 	config: {
-		"reftooctalalways": n, // does a single digit reference \1 become an octal? (vs remain an unmatched ref)
-		"substdecomposeref": n, // will a subst reference decompose? (ex. \3 becomes "\" & "3" if < 3 groups)
-		"looseesc": n // should unrecognized escape sequences match the character (ex. \u could match "u") // disabled when `u` flag is set
+		reftooctalalways: n, // does a single digit reference \1 become an octal? (vs remain an unmatched ref)
+		substdecomposeref: n, // will a subst reference decompose? (ex. \3 becomes "\" & "3" if < 3 groups)
+		looseesc: n, // should unrecognized escape sequences match the character (ex. \u could match "u") // disabled when `u` flag is set
 	},
-	
+
 	docs: {
-		"escoctal":{ext:"+<p>The syntax <code>\\o{FFF}</code> is also supported.</p>"},
-		"numref":{
-			ext:"<p>There are multiple syntaxes for this feature: <code>\\1</code> <code>\\g1</code> <code>\\g{1}</code>.</p>"+
-				"<p>The latter syntaxes support relative values preceded by <code>+</code> or <code>-</code>. For example <code>\\g-1</code> would match the group preceding the reference.</p>"
+		escoctal: {
+			ext: "+<p>The syntax <code>\\o{FFF}</code> is also supported.</p>",
 		},
-		"lazy": { ext:"+<p>This behaviour is reversed by the ungreedy (<code>U</code>) flag/modifier.</p>" }
-	}
+		numref: {
+			ext:
+				"<p>There are multiple syntaxes for this feature: <code>\\1</code> <code>\\g1</code> <code>\\g{1}</code>.</p>" +
+				"<p>The latter syntaxes support relative values preceded by <code>+</code> or <code>-</code>. For example <code>\\g-1</code> would match the group preceding the reference.</p>",
+		},
+		lazy: {
+			ext:
+				"+<p>This behaviour is reversed by the ungreedy (<code>U</code>) flag/modifier.</p>",
+		},
+	},
 };
 
 export default pcre;

@@ -21,62 +21,92 @@ import CMUtils from "../utils/CMUtils";
 import app from "../app";
 
 export default class ExpressionHover {
-	constructor (editor, highlighter) {
+	constructor(editor, highlighter) {
 		this.editor = editor;
 		this.highlighter = highlighter;
 		this.isMouseDown = false;
 		this.token = null;
-		
+
 		let o = editor.display.lineDiv;
-		o.addEventListener("mousemove", (evt)=> this._handleMouseMove(evt));
-		o.addEventListener("mouseout", (evt)=> this._handleMouseOut(evt));
-		o.addEventListener("mousedown", (evt)=> this._handleMouseDown(evt));
-		
+		o.addEventListener("mousemove", (evt) => this._handleMouseMove(evt));
+		o.addEventListener("mouseout", (evt) => this._handleMouseOut(evt));
+		o.addEventListener("mousedown", (evt) => this._handleMouseDown(evt));
 	}
 
-	
-// private methods:
+	// private methods:
 	_handleMouseMove(evt) {
-		if (this.isMouseDown) { return; }
-		
-		let index, editor = this.editor, token = this.token, target = null;
-		
-		if (evt && token && (index = CMUtils.getCharIndexAt(editor, evt.clientX, evt.clientY + window.pageYOffset)) != null) {
+		if (this.isMouseDown) {
+			return;
+		}
+
+		let index,
+			editor = this.editor,
+			token = this.token,
+			target = null;
+
+		if (
+			evt &&
+			token &&
+			(index = CMUtils.getCharIndexAt(
+				editor,
+				evt.clientX,
+				evt.clientY + window.pageYOffset
+			)) != null
+		) {
 			while (token) {
-				if (index >= token.i && index < token.i+token.l) {
+				if (index >= token.i && index < token.i + token.l) {
 					target = token;
 					break;
 				}
 				token = token.next;
 			}
 		}
-		
+
 		while (target) {
-			if (target.open) { target = target.open; }
-			else if (target.proxy) { target = target.proxy; }
-			else { break; }
+			if (target.open) {
+				target = target.open;
+			} else if (target.proxy) {
+				target = target.proxy;
+			} else {
+				break;
+			}
 		}
-	
+
 		this.highlighter.hoverToken = target;
-		let rect = (index != null) && CMUtils.getCharRect(editor, index);
-		if (rect) { rect.right = rect.left = evt.clientX; }
-		app.tooltip.hover.show("ExpressionHover", app.reference.tipForToken(target), evt.clientX, rect.bottom, true, 0);
+		let rect = index != null && CMUtils.getCharRect(editor, index);
+		if (rect) {
+			rect.right = rect.left = evt.clientX;
+		}
+		app.tooltip.hover.show(
+			"ExpressionHover",
+			app.reference.tipForToken(target),
+			evt.clientX,
+			rect.bottom,
+			true,
+			0
+		);
 	}
-	
+
 	_handleMouseOut(evt) {
 		this.highlighter.hoverToken = null;
 		app.tooltip.hover.hide("ExpressionHover");
 	}
-	
+
 	_handleMouseDown(evt) {
 		// TODO: Should this also be in TextHover?
-		if (evt.which !== 1 && evt.button !== 1) { return; }
-		
+		if (evt.which !== 1 && evt.button !== 1) {
+			return;
+		}
+
 		this.isMouseDown = true;
-		let f, t = window.addEventListener ? window : document;
-		t.addEventListener("mouseup", f = () => {
-			t.removeEventListener("mouseup", f);
-			this.isMouseDown = false;
-		});
+		let f,
+			t = window.addEventListener ? window : document;
+		t.addEventListener(
+			"mouseup",
+			(f = () => {
+				t.removeEventListener("mouseup", f);
+				this.isMouseDown = false;
+			})
+		);
 	}
 }

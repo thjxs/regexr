@@ -18,8 +18,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import EventDispatcher from "../events/EventDispatcher";
 
-import $ from "../utils/DOMUtils"
-import Track from "../utils/Track"
+import $ from "../utils/DOMUtils";
+import Track from "../utils/Track";
 
 import List from "../controls/List";
 import Server from "../net/Server";
@@ -27,44 +27,71 @@ import Server from "../net/Server";
 import app from "../app";
 
 export default class Account extends EventDispatcher {
-	constructor () {
+	constructor() {
 		super();
 		this._value = {};
 		this._initUI();
 	}
-	
+
 	get value() {
 		return this._value;
 	}
 
-	set value(val={}) {
+	set value(val = {}) {
 		this._value = val;
 		this._updateUI();
 		this.dispatchEvent("change");
 	}
 
-	get userId() { return this._value.userId; }
-	get author() { return this._value.author || this._value.username || ""; }
-	get username() { return this._value.username || ""; }
-	get authenticated() { return !!this._value.username; } // this._value.authenticated;
-	get type() { return this._value.type; }
-	
-	showTooltip() {
-		app.tooltip.toggle.toggleOn("signin", this.tooltipEl, this.signinBtn, true, 20);
+	get userId() {
+		return this._value.userId;
 	}
-	
-// private methods:
+	get author() {
+		return this._value.author || this._value.username || "";
+	}
+	get username() {
+		return this._value.username || "";
+	}
+	get authenticated() {
+		return !!this._value.username;
+	} // this._value.authenticated;
+	get type() {
+		return this._value.type;
+	}
+
+	showTooltip() {
+		app.tooltip.toggle.toggleOn(
+			"signin",
+			this.tooltipEl,
+			this.signinBtn,
+			true,
+			20
+		);
+	}
+
+	// private methods:
 	_initUI() {
-		let template = (o) => '<svg class="icon inline"><use xlink:href="#'+o.toLowerCase()+'"></use></svg>'+o;
+		let template = (o) =>
+			'<svg class="icon inline"><use xlink:href="#' +
+			o.toLowerCase() +
+			'"></use></svg>' +
+			o;
 		this.signinBtn = $.query(".header .signin");
 		this.tooltipEl = $.query("#library > #tooltip-signin");
 		this.signinEl = $.query(".signin", this.tooltipEl);
 		this.signoutEl = $.query(".signout", this.tooltipEl);
-		$.query(".signoutbtn", this.signoutEl).addEventListener("click", (evt) => this._doSignout());
+		$.query(".signoutbtn", this.signoutEl).addEventListener("click", (evt) =>
+			this._doSignout()
+		);
 		this.signinBtn.addEventListener("click", (evt) => this.showTooltip());
-		$.query(".icon.help", this.signinEl).addEventListener("click", ()=> app.sidebar.goto("signin"));
-		this.signinList = new List($.query("ul.list", this.signinEl), {data:["GitHub","Facebook", "Google"], template});
-		this.signinList.on("change", ()=>this._signinListChange());
+		$.query(".icon.help", this.signinEl).addEventListener("click", () =>
+			app.sidebar.goto("signin")
+		);
+		this.signinList = new List($.query("ul.list", this.signinEl), {
+			data: ["GitHub", "Facebook", "Google"],
+			template,
+		});
+		this.signinList.on("change", () => this._signinListChange());
 	}
 
 	_updateUI() {
@@ -79,7 +106,11 @@ export default class Account extends EventDispatcher {
 
 	_doSignout() {
 		$.addClass(this.tooltipEl, "wait");
-		Server.logout().then((data) => { this._handleSignout(data); }).finally(()=>this._cleanSignout());
+		Server.logout()
+			.then((data) => {
+				this._handleSignout(data);
+			})
+			.finally(() => this._cleanSignout());
 	}
 
 	_handleSignout(data) {
@@ -89,7 +120,7 @@ export default class Account extends EventDispatcher {
 	_cleanSignout(err) {
 		$.removeClass(this.tooltipEl, "wait");
 	}
-	
+
 	_signinListChange() {
 		let service = this.signinList.selected.toLowerCase();
 		$.addClass(this.tooltipEl, "wait");

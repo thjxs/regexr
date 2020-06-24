@@ -40,9 +40,11 @@ import RefCoverage from "./RefCoverage";
 import Prefs from "./helpers/Prefs";
 
 export default class RegExr extends EventDispatcher {
-	constructor () { super(); }
+	constructor() {
+		super();
+	}
 
-	init(state, account, config={}) {
+	init(state, account, config = {}) {
 		this.prefs = new Prefs();
 		this.flavor = new Flavor();
 		this.reference = new Reference(reference_content, this.flavor, config);
@@ -61,25 +63,36 @@ export default class RegExr extends EventDispatcher {
 
 		let params = Utils.getUrlParams();
 		if (Utils.isLocal && params.id) {
-			Server.load(params.id).then((o) => this.state = o);
+			Server.load(params.id).then((o) => (this.state = o));
 			params = {};
 		}
-		if (params.engine) { this.flavor.value = params.engine; }
-		if (params.expression) { this.expression.value = params.expression; }
-		if (params.text) { this.text.value = params.text; }
-		if (params.tool) { this.tools.value = {id:params.tool, input:params.input}; }
+		if (params.engine) {
+			this.flavor.value = params.engine;
+		}
+		if (params.expression) {
+			this.expression.value = params.expression;
+		}
+		if (params.text) {
+			this.text.value = params.text;
+		}
+		if (params.tool) {
+			this.tools.value = { id: params.tool, input: params.input };
+		}
 
-		window.onbeforeunload = (e) => this.unsaved ? "You have unsaved changes." : null;
+		window.onbeforeunload = (e) =>
+			this.unsaved ? "You have unsaved changes." : null;
 		this.resetUnsaved();
 
 		setTimeout(() => this._initAds(), 100);
 	}
 
 	_initAds() {
-		_native && _native.init("CK7D65QM", { // "CK7D65QM" use "CK7D4KQE" to test Carbon ads
-			carbonZoneKey: 'CK7DPKQU',
-			targetClass: 'native-js'
-		});
+		_native &&
+			_native.init("CK7D65QM", {
+				// "CK7D65QM" use "CK7D4KQE" to test Carbon ads
+				carbonZoneKey: "CK7DPKQU",
+				targetClass: "native-js",
+			});
 	}
 
 	_localInit() {
@@ -88,7 +101,7 @@ export default class RegExr extends EventDispatcher {
 		new RefCoverage();
 	}
 
-// getter / setters:
+	// getter / setters:
 	get state() {
 		console.log(this.text.mode);
 		let o = {
@@ -104,7 +117,9 @@ export default class RegExr extends EventDispatcher {
 	}
 
 	set state(o) {
-		if (!o) { return; }
+		if (!o) {
+			return;
+		}
 		this.flavor.value = o.flavor;
 		this.expression.value = o.expression;
 		this.text.value = o.text;
@@ -118,14 +133,25 @@ export default class RegExr extends EventDispatcher {
 	get hash() {
 		let share = this.share;
 		return Utils.getHashCode(
-			this.expression.value+"\t"
-			+ this.text.value+"\t"
-			+ this.flavor.value+"\t"
-			+ share.author+"\t" + share.name+"\t" + share.description+"\t" + share.keywords+"\t"
-			+ JSON.stringify(this.text.tests)+"\t"
+			this.expression.value +
+				"\t" +
+				this.text.value +
+				"\t" +
+				this.flavor.value +
+				"\t" +
+				share.author +
+				"\t" +
+				share.name +
+				"\t" +
+				share.description +
+				"\t" +
+				share.keywords +
+				"\t" +
+				JSON.stringify(this.text.tests) +
+				"\t"
 			//+ this.tools.value.input+"\t"
 			//+ this.tools.value.id+"\t"
-		)
+		);
 	}
 
 	get unsaved() {
@@ -136,44 +162,53 @@ export default class RegExr extends EventDispatcher {
 		return this._matchList.matches;
 	}
 
-// public methods:
+	// public methods:
 	resetUnsaved() {
 		this._savedHash = this.hash;
 	}
 
-	newDoc(warn=true) {
-		this.load({flavor: this.flavor.value, expression: ".", text:"Text"}, warn);
+	newDoc(warn = true) {
+		this.load(
+			{ flavor: this.flavor.value, expression: ".", text: "Text" },
+			warn
+		);
 		this.expression.selectAll();
 	}
 
-	load(state, warn=true) {
-		if (warn === true) { warn = "You have unsaved changes. Continue without saving?"; }
-		if (warn && this.unsaved && !confirm(warn)) { return; }
+	load(state, warn = true) {
+		if (warn === true) {
+			warn = "You have unsaved changes. Continue without saving?";
+		}
+		if (warn && this.unsaved && !confirm(warn)) {
+			return;
+		}
 		this.state = Utils.clone(state);
 	}
 
-// private methods:
+	// private methods:
 	_initUI() {
 		// TODO: break into own Device class? Rename mobile.scss too?
 		// mobile setup
 		// keep synced with "mobile.scss":
 		if (screen.width < 500) {
-			document.getElementById("viewport").setAttribute("content", "width=500, user-scalable=0");
+			document
+				.getElementById("viewport")
+				.setAttribute("content", "width=500, user-scalable=0");
 		}
 		this._matchList = window.matchMedia("(max-width: 900px)");
-		this._matchList.addListener((q)=>this.dispatchEvent("narrow")); // currently unused.
+		this._matchList.addListener((q) => this.dispatchEvent("narrow")); // currently unused.
 
 		// UI:
 		this.el = $.query(".container");
 
 		this.tooltip = {
 			hover: new Tooltip($.query("#library #tooltip").cloneNode(true)),
-			toggle: new Tooltip($.query("#library #tooltip"), true)
+			toggle: new Tooltip($.query("#library #tooltip"), true),
 		};
 
 		this.theme = new Theme(this.el);
 
-		let el = this.docEl = $.query(".app > .doc", this.el);
+		let el = (this.docEl = $.query(".app > .doc", this.el));
 		this.expression = new Expression($.query("> section.expression", el));
 		this.text = new Text($.query("> section.text", el));
 		this.tools = new Tools($.query("> section.tools", el));
@@ -182,32 +217,40 @@ export default class RegExr extends EventDispatcher {
 		this.sidebar = new Sidebar($.query(".app > .sidebar", this.el));
 		this.share = this.sidebar.share;
 
-		this.expression.on("change", ()=> this._change());
-		this.text.on("change", ()=> this._change());
-		this.text.on("modechange", ()=> this._modeChange());
-		this.flavor.on("change", ()=> this._change());
-		this.tools.on("change", ()=> this._change());
-		this.share.on("change", ()=> this._change());
+		this.expression.on("change", () => this._change());
+		this.text.on("change", () => this._change());
+		this.text.on("modechange", () => this._modeChange());
+		this.flavor.on("change", () => this._change());
+		this.tools.on("change", () => this._change());
+		this.share.on("change", () => this._change());
 	}
 
 	_migrateFavorites() {
-		let ls = window.localStorage, l=ls.length;
-		if (!l || ls.getItem("f_v3") >= "1") { return }
+		let ls = window.localStorage,
+			l = ls.length;
+		if (!l || ls.getItem("f_v3") >= "1") {
+			return;
+		}
 		let ids = [];
-		for (let i=0; i<l; i++) {
-			let key = ls.key(i), val=ls.getItem(key);
+		for (let i = 0; i < l; i++) {
+			let key = ls.key(i),
+				val = ls.getItem(key);
 			if (key[0] === "f" && val === "1") {
 				ids.push(key.substr(1));
 			}
 		}
-		if (!ids.length) { ls.setItem("f_v3", "1"); return; }
+		if (!ids.length) {
+			ls.setItem("f_v3", "1");
+			return;
+		}
 		Server.multiFavorite(ids).then(() => ls.setItem("f_v3", "1"));
 	}
 
 	_change() {
 		this.dispatchEvent("change");
-		let solver = this.flavor.solver, exp = this.expression;
-		let o = {pattern:exp.pattern, flags:exp.flags, mode:this.text.mode};
+		let solver = this.flavor.solver,
+			exp = this.expression;
+		let o = { pattern: exp.pattern, flags: exp.flags, mode: this.text.mode };
 		if (o.mode === "tests") {
 			o.tests = this.text.tests;
 		} else {
@@ -221,7 +264,7 @@ export default class RegExr extends EventDispatcher {
 		$.toggleClass(this.docEl, "tests-mode", this.text.mode === "tests");
 		this._change();
 	}
-	
+
 	_handleResult(result) {
 		this.result = this._processResult(result);
 		this.dispatchEvent("result");
@@ -229,7 +272,7 @@ export default class RegExr extends EventDispatcher {
 
 	_processResult(result) {
 		if (result.mode === "text") {
-			result.matches && result.matches.forEach((o, i)=>o.num=i);
+			result.matches && result.matches.forEach((o, i) => (o.num = i));
 		}
 		return result;
 	}

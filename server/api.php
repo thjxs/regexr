@@ -23,11 +23,6 @@ use core\Cache;
 
 // Everything comes back as JSON
 header('Content-Type: application/json');
-header('Access-Control-Allow-Methods: ' . (DEBUG?'POST, GET':'POST'));
-
-if (DEBUG) {
-    header("Access-Control-Allow-Origin: *");
-}
 
 // Grab the correct values.
 // OAUTH will use $_GET, the internal RegExr apis will use $_POST;

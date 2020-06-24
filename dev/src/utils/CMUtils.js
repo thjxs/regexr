@@ -26,39 +26,48 @@ import $ from "../utils/DOMUtils";
 let CMUtils = {};
 export default CMUtils;
 
-CMUtils.create = function (target, opts={}, width="100%", height="100%") {
-	let keys = {}, ctrlKey = Utils.getCtrlKey();
+CMUtils.create = function (target, opts = {}, width = "100%", height = "100%") {
+	let keys = {},
+		ctrlKey = Utils.getCtrlKey();
 	//keys[ctrlKey + "-Z"] = keys[ctrlKey + "-Y"] = keys["Shift-" + ctrlKey + "-Z"] = () => false; // block CM handling
 
-	let o = Utils.copy({
-		lineNumbers: false,
-		tabSize: 3,
-		indentWithTabs: true,
-		extraKeys: keys,
-		specialChars: /[ \u0000-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff]/,
-		specialCharPlaceholder: (ch) => $.create("span", ch === " " ? "cm-space" : "cm-special", " ") // needs to be a space so wrapping works
-	}, opts);
-	
+	let o = Utils.copy(
+		{
+			lineNumbers: false,
+			tabSize: 3,
+			indentWithTabs: true,
+			extraKeys: keys,
+			specialChars: /[ \u0000-\u001f\u007f-\u009f\u00ad\u061c\u200b-\u200f\u2028\u2029\ufeff]/,
+			specialCharPlaceholder: (ch) =>
+				$.create("span", ch === " " ? "cm-space" : "cm-special", " "), // needs to be a space so wrapping works
+		},
+		opts
+	);
+
 	let cm = CodeMirror(target, o);
 	cm.setSize(width, height);
-	
-	
+
 	if (cm.getOption("maxLength")) {
 		cm.on("beforeChange", CMUtils.enforceMaxLength);
 	}
 	if (cm.getOption("singleLine")) {
 		cm.on("beforeChange", CMUtils.enforceSingleLine);
 	}
-	
+
 	return cm;
 };
 
 CMUtils.getCharIndexAt = function (cm, winX, winY) {
-	let pos = cm.coordsChar({left: winX, top: winY}, "page");
+	let pos = cm.coordsChar({ left: winX, top: winY }, "page");
 	// test current and prev character, since CM seems to use the center of each character for coordsChar:
 	for (let i = 0; i <= 1; i++) {
 		let rect = cm.charCoords(pos, "page");
-		if (winX >= rect.left && winX <= rect.right && winY >= rect.top && winY <= rect.bottom) {
+		if (
+			winX >= rect.left &&
+			winX <= rect.right &&
+			winY >= rect.top &&
+			winY <= rect.bottom
+		) {
 			return cm.indexFromPos(pos);
 		}
 		if (pos.ch-- <= 0) {
@@ -78,8 +87,11 @@ CMUtils.getEOLPos = function (cm, pos) {
 };
 */
 CMUtils.getCharRect = function (cm, index) {
-	if (index == null) { return null; }
-	let pos = cm.posFromIndex(index), rect = cm.charCoords(pos);
+	if (index == null) {
+		return null;
+	}
+	let pos = cm.posFromIndex(index),
+		rect = cm.charCoords(pos);
 	rect.x = rect.left;
 	rect.y = rect.top;
 	rect.width = rect.right - rect.left;
@@ -87,13 +99,14 @@ CMUtils.getCharRect = function (cm, index) {
 	return rect;
 };
 
-
 CMUtils.enforceMaxLength = function (cm, change) {
 	let maxLength = cm.getOption("maxLength");
 	if (maxLength && change.update) {
 		let str = change.text.join("\n");
-		let delta = str.length - (cm.indexFromPos(change.to) - cm.indexFromPos(change.from));
-		if (delta <= 0) { return true; 
+		let delta =
+			str.length - (cm.indexFromPos(change.to) - cm.indexFromPos(change.from));
+		if (delta <= 0) {
+			return true;
 		}
 		delta = cm.getValue().length + delta - maxLength;
 		if (delta > 0) {
@@ -112,14 +125,14 @@ CMUtils.enforceSingleLine = function (cm, change) {
 	return true;
 };
 
-CMUtils.selectAll = function(cm) {
+CMUtils.selectAll = function (cm) {
 	cm.focus();
-	cm.setSelection({ch:0,line:0},{ch:0, line:cm.lineCount()});
-}
+	cm.setSelection({ ch: 0, line: 0 }, { ch: 0, line: cm.lineCount() });
+};
 
-CMUtils.calcRangePos = function(cm, i, l=0, o={}) {
+CMUtils.calcRangePos = function (cm, i, l = 0, o = {}) {
 	let doc = cm.getDoc();
 	o.startPos = doc.posFromIndex(i);
-	o.endPos = doc.posFromIndex(i+l);
+	o.endPos = doc.posFromIndex(i + l);
 	return o;
-}
+};

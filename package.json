@@ -4,7 +4,10 @@
   "description": "Regular expression tester with syntax highlighting, PHP / PCRE & JS Support, contextual help, cheat sheet, reference, and searchable community patterns.",
   "author": "Grant Skinner",
   "license": "GPL-3.0",
-  "private": true,
+	"private": true,
+	"scripts": {
+		"format": "prettier dev/**/*.{html,js,css} --write"
+	},
   "devDependencies": {
     "@babel/core": "^7.9.6",
     "@babel/preset-env": "^7.9.6",
@@ -21,6 +24,7 @@
     "gulp-svgmin": "^2.2.0",
     "gulp-svgstore": "^7.0.1",
     "gulp-template": "^5.0.0",
+    "prettier": "^2.0.5",
     "rollup": "^1.32.1",
     "rollup-plugin-babel": "4.3.2",
     "rollup-plugin-replace": "^2.2.0",

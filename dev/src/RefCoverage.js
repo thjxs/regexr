@@ -22,22 +22,38 @@ import app from "./app";
 export default class RefCoverage {
 	constructor() {
 		app.flavor._buildSupportMap(core);
-		let ref = app.reference._idMap, undoc=[], unused=[], all=core._supportMap;
+		let ref = app.reference._idMap,
+			undoc = [],
+			unused = [],
+			all = core._supportMap;
 		let ignore = {
-			"escchar": true, // literal char
-			"groupclose": true,
-			"setclose": true,
-			"condition": true, // proxies to conditional
-			"conditionalelse": true, // proxies to conditional
+			escchar: true, // literal char
+			groupclose: true,
+			setclose: true,
+			condition: true, // proxies to conditional
+			conditionalelse: true, // proxies to conditional
 			subst_$group: true, // resolved to subst_group
 			subst_$bgroup: true, // resolved to subst_group
 			subst_bsgroup: true, // resolved to subst_group
-			escoctalo: true // resolved to escoctal
+			escoctalo: true, // resolved to escoctal
+		};
+
+		for (let n in all) {
+			if (!ref[n] && !ignore[n]) {
+				undoc.push(n);
+			}
 		}
-		
-		for (let n in all) { if (!ref[n] && !ignore[n]) { undoc.push(n); } }
-		for (let n in ref) { if (!all[n] && !ref[n].kids) { unused.push(n); } }
-		
-		console.log("--- UNDOCUMENTED IDS ---\n"+undoc.join("\n")+"\n\n--- UNUSED DOCS? ---\n"+unused.join("\n"));
+		for (let n in ref) {
+			if (!all[n] && !ref[n].kids) {
+				unused.push(n);
+			}
+		}
+
+		console.log(
+			"--- UNDOCUMENTED IDS ---\n" +
+				undoc.join("\n") +
+				"\n\n--- UNUSED DOCS? ---\n" +
+				unused.join("\n")
+		);
 	}
 }

@@ -26,14 +26,18 @@ export default class List extends EventDispatcher {
 		this.multi = opts.multi;
 		this.template = opts.template;
 		this.data = opts.data;
-		if (opts.selected) { this.selected = opts.selected; }
+		if (opts.selected) {
+			this.selected = opts.selected;
+		}
 	}
-	
+
 	set data(data) {
 		$.empty(this.el);
 		this._data = data;
-		if (!data || !data.length) { return; }
-		for (let i=0, l=data.length; i<l; i++) {
+		if (!data || !data.length) {
+			return;
+		}
+		for (let i = 0, l = data.length; i < l; i++) {
 			this.addItem(data[i]);
 		}
 	}
@@ -41,21 +45,33 @@ export default class List extends EventDispatcher {
 	get data() {
 		return this._data;
 	}
-	
+
 	set selected(ids) {
 		$.removeClass($.queryAll(".selected", this.el), "selected");
-		if (!(ids instanceof Array)) { ids = [ids]; }
-		ids.forEach((id)=>$.addClass($.query("[data-id='"+id+"']",this.el), "selected"));
-		
-		if (!this.multi) { this.scrollTo(ids[0]); }
+		if (!(ids instanceof Array)) {
+			ids = [ids];
+		}
+		ids.forEach((id) =>
+			$.addClass($.query("[data-id='" + id + "']", this.el), "selected")
+		);
+
+		if (!this.multi) {
+			this.scrollTo(ids[0]);
+		}
 	}
-	
+
 	get selected() {
 		let els = $.queryAll("li.selected", this.el);
-		if (!els[0]) { return null; }
-		if (!this.multi) { return els[0].dataset.id; }
+		if (!els[0]) {
+			return null;
+		}
+		if (!this.multi) {
+			return els[0].dataset.id;
+		}
 		let ids = [];
-		for (let i=0, l=els.length; i<l; i++) { ids.push(els[i].dataset.id); }
+		for (let i = 0, l = els.length; i < l; i++) {
+			ids.push(els[i].dataset.id);
+		}
 		return ids;
 	}
 
@@ -65,10 +81,11 @@ export default class List extends EventDispatcher {
 	}
 
 	get selectedIndex() {
-		let el = this.selectedEl, id = el && el.dataset.id;
+		let el = this.selectedEl,
+			id = el && el.dataset.id;
 		return id === null ? -1 : this.data.findIndex((o) => o.id === id);
 	}
-	
+
 	get selectedItem() {
 		let el = this.selectedEl;
 		return el && el.item;
@@ -77,24 +94,29 @@ export default class List extends EventDispatcher {
 	get selectedEl() {
 		return $.query("li.selected", this.el);
 	}
-	
+
 	refresh() {
 		let sel = this.selected;
 		this.data = this._data;
 		this.selected = sel;
 	}
 
-	addItem(o, selected=null) {
+	addItem(o, selected = null) {
 		let label, id, sel;
-		let f=(evt) => this.handleClick(evt), template=this.template;
+		let f = (evt) => this.handleClick(evt),
+			template = this.template;
 		if (typeof o === "string") {
 			id = o;
 			label = template ? template(o) : o;
 		} else {
-			if (o.hide) { return; }
+			if (o.hide) {
+				return;
+			}
 			id = o.id || o.label;
 			label = template ? template(o) : o.label;
-			if (selected === null) { sel = o.selected; }
+			if (selected === null) {
+				sel = o.selected;
+			}
 		}
 		let item = $.create("li", sel ? "selected" : null, label, this.el);
 		item.dataset.id = id;
@@ -108,42 +130,53 @@ export default class List extends EventDispatcher {
 	}
 
 	removeItem(id) {
-		let el = $.query("[data-id='"+id+"']",this.el);
+		let el = $.query("[data-id='" + id + "']", this.el);
 		el && el.remove();
 	}
 
 	handleClick(evt) {
-		let id = evt.currentTarget.dataset.id, old = this.selected;
-		if (!this.getEl(id)) { return; }
+		let id = evt.currentTarget.dataset.id,
+			old = this.selected;
+		if (!this.getEl(id)) {
+			return;
+		}
 		if (evt.type === "dblclick") {
-			if (id != null) { this.dispatchEvent("dblclick"); }
+			if (id != null) {
+				this.dispatchEvent("dblclick");
+			}
 			return;
 		} else if (this.multi) {
 			$.toggleClass(evt.currentTarget, "selected");
 		} else if (old === id) {
-			if (id != null) { this.dispatchEvent("selclick"); }
+			if (id != null) {
+				this.dispatchEvent("selclick");
+			}
 			return;
 		} else {
 			this.selected = id;
 		}
-		if (!this.dispatchEvent("change", false, true)) { this.selected = old; }
+		if (!this.dispatchEvent("change", false, true)) {
+			this.selected = old;
+		}
 	}
-	
-	scrollTo(id=this.selected) {
+
+	scrollTo(id = this.selected) {
 		let el = this.getEl(id);
-		if (!el) { return; }
+		if (!el) {
+			return;
+		}
 		//el.scrollIntoView(); // this is too jumpy, but would handle horizontal.
 
 		let scrollEl = this.scrollEl || this.el;
 		let top = el.offsetTop - scrollEl.offsetTop;
-		if (top + el.offsetHeight > scrollEl.scrollTop+scrollEl.offsetHeight) {
-			scrollEl.scrollTop = top+el.offsetHeight-scrollEl.offsetHeight+10;
+		if (top + el.offsetHeight > scrollEl.scrollTop + scrollEl.offsetHeight) {
+			scrollEl.scrollTop = top + el.offsetHeight - scrollEl.offsetHeight + 10;
 		} else if (top < scrollEl.scrollTop) {
-			scrollEl.scrollTop = top-10;
+			scrollEl.scrollTop = top - 10;
 		}
 	}
 
 	getEl(id) {
-		return $.query("[data-id='"+id+"']", this.el);
+		return $.query("[data-id='" + id + "']", this.el);
 	}
-};
+}

@@ -1,8 +1,14 @@
 {
   "require": {
-		"respect/validation": "1.1.12",
-		"hybridauth/hybridauth": "v3.2.0"
+		"respect/validation": "^2.0",
+		"hybridauth/hybridauth": "^3.3"
   },
   "require-dev": {
+  },
+  "repositories": {
+    "packagist": {
+      "type": "composer",
+      "url": "https://mirrors.aliyun.com/composer/"
+    }
   }
 }

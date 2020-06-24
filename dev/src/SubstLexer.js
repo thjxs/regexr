@@ -24,66 +24,75 @@ export default class SubstLexer {
 	constructor() {
 		this.profile = null;
 	}
-	
+
 	set profile(profile) {
 		this._profile = profile;
 		this.string = this.token = this.errors = null;
 	}
-	
+
 	parse(str) {
-		if (!this._profile) { return null; }
-		
+		if (!this._profile) {
+			return null;
+		}
+
 		this.token = null;
 		this.string = str;
 		this.errors = [];
-		
+
 		// TODO: should this be passed in from Tools?
 		let capGroups = app.expression.lexer.captureGroups;
-		
-		let prev=null, token, c;
-		for (let i=0, l=str.length; i<l; i+=token.l) {
+
+		let prev = null,
+			token,
+			c;
+		for (let i = 0, l = str.length; i < l; i += token.l) {
 			c = str[i];
-			token = {prev: prev, i: i, l: 1, subst: true};
-	
+			token = { prev: prev, i: i, l: 1, subst: true };
+
 			if (c === "$" && i + 1 < l) {
 				this.parseDollar(str, token, capGroups);
 			} else if (c == "\\" && i + 1 < l) {
 				this.parseBackSlash(str, token, capGroups);
 			}
-			
+
 			if (!token.type) {
 				token.type = "char";
 				token.code = c.charCodeAt(0);
 			}
-	
+
 			if (prev) {
 				prev.next = token;
 			}
 			if (!this.token) {
 				this.token = token;
 			}
-			
+
 			if (token.error) {
 				// SubstLexer currently doesn't generate any errors.
 				this.errors.push(token.error);
 			}
 			prev = token;
 		}
-	
+
 		return this.token;
-	};
-	
+	}
+
 	parseBackSlash(str, token, capGroups) {
-		let match, sub = str.substr(token.i), profile = this._profile;
-		if (profile.substTokens.subst_bsgroup && (match = sub.match(/^\\(\d\d?)/))) {
+		let match,
+			sub = str.substr(token.i),
+			profile = this._profile;
+		if (
+			profile.substTokens.subst_bsgroup &&
+			(match = sub.match(/^\\(\d\d?)/))
+		) {
 			this._getRef(match[1], token, capGroups, "subst_bsgroup");
-		} else if (match = sub.match(SubstLexer.SUBST_ESC_RE)) {
+		} else if ((match = sub.match(SubstLexer.SUBST_ESC_RE))) {
 			if (match[1][0] === "u") {
 				token.type = "escunicode";
 				token.code = parseInt(match[2], 16);
 			} else {
 				token.code = profile.escCharCodes[match[1]];
-				token.type = "esc_"+token.code;
+				token.type = "esc_" + token.code;
 			}
 			if (token.type) {
 				token.clss = "esc";
@@ -91,44 +100,63 @@ export default class SubstLexer {
 			}
 		}
 	}
-	
+
 	parseDollar(str, token, capGroups) {
 		// Note: Named groups are not supported in PCRE or JS.
 		let match = str.substr(token.i + 1).match(/^([$&`']|\d\d?|{\d\d?})/);
-		if (!match) { return; }
-		let d = match[1], type=SubstLexer.$_TYPES[d], profile=this._profile;
-		
+		if (!match) {
+			return;
+		}
+		let d = match[1],
+			type = SubstLexer.$_TYPES[d],
+			profile = this._profile;
+
 		if (type) {
-			if (!profile.substTokens[type]) { return; }
+			if (!profile.substTokens[type]) {
+				return;
+			}
 			token.type = type;
 			token.clss = "subst";
 			token.l += d.length;
 		} else {
-			this._getRef(d, token, capGroups, d[0] === "{" ? "subst_$bgroup" : "subst_$group");
+			this._getRef(
+				d,
+				token,
+				capGroups,
+				d[0] === "{" ? "subst_$bgroup" : "subst_$group"
+			);
 		}
-	};
-	
+	}
+
 	_getRef(numStr, token, capGroups, type) {
-		if (!this._profile.substTokens[type]) { return; }
-		let num = parseInt(numStr.match(/\d\d?/)[0]), l=0;
-		if (!this._profile.config.substdecomposeref || capGroups[num-1]) { l = numStr.length; }
-		else if (num >= 10 && capGroups[(num = (num/10|0))-1]) { l = numStr.length-1; }
+		if (!this._profile.substTokens[type]) {
+			return;
+		}
+		let num = parseInt(numStr.match(/\d\d?/)[0]),
+			l = 0;
+		if (!this._profile.config.substdecomposeref || capGroups[num - 1]) {
+			l = numStr.length;
+		} else if (num >= 10 && capGroups[(num = (num / 10) | 0) - 1]) {
+			l = numStr.length - 1;
+		}
 		if (l) {
 			token.l += l;
 			// we don't assign the original type, because the docs combine them all into one id:
 			token.type = num > 0 ? "subst_group" : "subst_0match";
 			token.clss = "subst";
-			if (num > 0) { token.group = capGroups[num-1]; }
+			if (num > 0) {
+				token.group = capGroups[num - 1];
+			}
 		}
 	}
 }
 
 SubstLexer.$_TYPES = {
-	"$": "subst_$esc",
+	$: "subst_$esc",
 	"&": "subst_$&match",
 	"`": "subst_$before",
 	"'": "subst_$after",
-	"0": "subst_0match"
+	"0": "subst_0match",
 };
 
-SubstLexer.SUBST_ESC_RE = new RegExp("^"+Utils.SUBST_ESC_RE.source,"i");
+SubstLexer.SUBST_ESC_RE = new RegExp("^" + Utils.SUBST_ESC_RE.source, "i");

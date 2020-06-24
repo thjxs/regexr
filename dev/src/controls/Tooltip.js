@@ -19,40 +19,46 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import $ from "../utils/DOMUtils";
 
 export default class Tooltip {
-	
-	constructor(el, transition=false) {
+	constructor(el, transition = false) {
 		this.el = $.remove(el);
 		this.transition = transition;
 		this.contentEl = $.query(".content", el);
 		this.tipEl = $.query(".tip", el);
-		this.hideF = (evt)=> Date.now()>this._showT && this.handleBodyClick(evt);
+		this.hideF = (evt) => Date.now() > this._showT && this.handleBodyClick(evt);
 		this.curId = null;
 	}
-	
+
 	toggle(id, content, x, y, autohide, th) {
-		if (id === this.curId) { return this.hide(id); }
+		if (id === this.curId) {
+			return this.hide(id);
+		}
 		this.show(id, content, x, y, autohide, th);
 	}
-	
+
 	toggleOn(id, content, el, autohide, th) {
-		if (id === this.curId) { return this.hide(id); }
+		if (id === this.curId) {
+			return this.hide(id);
+		}
 		this.showOn(id, content, el, autohide, th);
 		this.toggleEl = el;
 		$.addClass(el, "selected");
 	}
-	
+
 	hide(id) {
-		if (id && this.curId !== id) { return; }
-		let el = this.el, elStyle = el.style;
+		if (id && this.curId !== id) {
+			return;
+		}
+		let el = this.el,
+			elStyle = el.style;
 		$.empty($.query(".content", $.remove(el)));
 		$.removeClass(el, "flipped");
 		document.body.removeEventListener("mousedown", this.hideF);
-		
+
 		if (this.toggleEl) {
 			$.removeClass(this.toggleEl, "selected");
 			this.toggleEl = null;
 		}
-		
+
 		// reset position and width so that content wrapping resolves properly:
 		elStyle.left = elStyle.top = "0";
 		elStyle.width = "";
@@ -65,50 +71,72 @@ export default class Tooltip {
 
 	show(id, content, x, y, autohide = false, th = 0) {
 		this.hide();
-		if (!content) { return; }
+		if (!content) {
+			return;
+		}
 
-		let el = this.el, elStyle = el.style, contentEl = this.contentEl, body = document.body, pad = 8;
-		if (content instanceof HTMLElement) { contentEl.appendChild(content); }
-		else { contentEl.innerHTML = content; }
+		let el = this.el,
+			elStyle = el.style,
+			contentEl = this.contentEl,
+			body = document.body,
+			pad = 8;
+		if (content instanceof HTMLElement) {
+			contentEl.appendChild(content);
+		} else {
+			contentEl.innerHTML = content;
+		}
 
 		if (autohide) {
-			this._showT = Date.now()+30; // ignore double clicks and events in the current stack.
+			this._showT = Date.now() + 30; // ignore double clicks and events in the current stack.
 			body.addEventListener("mousedown", this.hideF);
 		}
 
 		body.appendChild(el);
 
-		let wh = window.innerHeight, ww = window.innerWidth;
-		let rect = el.getBoundingClientRect(), w = rect.right - rect.left, h = rect.bottom - rect.top, off = 0;
+		let wh = window.innerHeight,
+			ww = window.innerWidth;
+		let rect = el.getBoundingClientRect(),
+			w = rect.right - rect.left,
+			h = rect.bottom - rect.top,
+			off = 0;
 		if (y + h > wh - pad) {
 			$.addClass(el, "flipped");
 			y -= th;
 		}
-		if (x - w / 2 < pad) { off = pad - x + w / 2; }
-		else if (x + w / 2 > ww - pad) { off = ww - pad - x - w / 2; }
-		this.tipEl.style.marginRight = Math.max(-w / 2 + 10, Math.min(w / 2 - 10, off)) * 2 + "px";
-		elStyle.width = Math.ceil(w/2)*2 + "px";
+		if (x - w / 2 < pad) {
+			off = pad - x + w / 2;
+		} else if (x + w / 2 > ww - pad) {
+			off = ww - pad - x - w / 2;
+		}
+		this.tipEl.style.marginRight =
+			Math.max(-w / 2 + 10, Math.min(w / 2 - 10, off)) * 2 + "px";
+		elStyle.width = Math.ceil(w / 2) * 2 + "px";
 		elStyle.top = Math.round(y) + "px";
 		elStyle.left = Math.round(x + off) + "px";
 		if (this.transition) {
 			elStyle.opacity = 1;
 			elStyle.marginTop = 0;
 		}
-		
+
 		this.curId = id;
 	}
-	
-	showOn(id, content, el, autohide, th=0) {
+
+	showOn(id, content, el, autohide, th = 0) {
 		let rect = el.getBoundingClientRect();
-		let x = Math.round((rect.left+rect.right)/2);
-		let y = rect.bottom+th;
-		let h = rect.bottom-rect.top;
+		let x = Math.round((rect.left + rect.right) / 2);
+		let y = rect.bottom + th;
+		let h = rect.bottom - rect.top;
 		this.show(id, content, x, y, autohide, h);
 	}
 
 	handleBodyClick(evt) {
 		let id = this.curId;
-		if (this.el.contains(evt.target) || (this.toggleEl && this.toggleEl.contains(evt.target))) { return; }
+		if (
+			this.el.contains(evt.target) ||
+			(this.toggleEl && this.toggleEl.contains(evt.target))
+		) {
+			return;
+		}
 		this.hide(id);
 	}
 }

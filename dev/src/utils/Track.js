@@ -21,16 +21,18 @@ export default Track;
 
 Track.GA_ID = "UA-3579542-6";
 
-Track.page = function(path) {
-	gtag("config", Track.GA_ID, {"page_path": "/"+path});
+Track.page = function (path) {
+	gtag("config", Track.GA_ID, { page_path: "/" + path });
 };
 
 // https://developers.google.com/analytics/devguides/collection/gtagjs/events
-Track.event = function(name, category, label) {
+Track.event = function (name, category, label) {
 	let o = {};
-	if (category) { o.event_category = category; }
-	if (label) { o.event_label = label; }
+	if (category) {
+		o.event_category = category;
+	}
+	if (label) {
+		o.event_label = label;
+	}
 	gtag("event", name, o);
-}
-
-
+};

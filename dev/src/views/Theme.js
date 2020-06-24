@@ -18,11 +18,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import EventDispatcher from "../events/EventDispatcher";
 
-import $ from "../utils/DOMUtils"
+import $ from "../utils/DOMUtils";
 import app from "../app";
 
 export default class Theme extends EventDispatcher {
-	constructor (el) {
+	constructor(el) {
 		super();
 		this.el = el;
 		this.urlTemplate = "./assets/themes/%name%.css";
@@ -34,13 +34,15 @@ export default class Theme extends EventDispatcher {
 
 	set dark(val) {
 		val = !!val;
-		if (this._dark === val) { return; }
+		if (this._dark === val) {
+			return;
+		}
 		this._dark = val;
 		this._load(val ? "dark" : null);
 		$.toggleClass(this.themeBtn, "selected", val);
 		app.prefs.write("dark", val);
 	}
-	
+
 	get dark() {
 		return this._dark;
 	}
@@ -51,11 +53,19 @@ export default class Theme extends EventDispatcher {
 	}
 
 	_load(id) {
-		if (id === this._id) { return; }
+		if (id === this._id) {
+			return;
+		}
 		this._id = id;
-		if (this._node) { this._node.remove(); }
-		if (!id) { this._change(); return; }
-		let tmpl = this.urlTemplate, n = $.create("link");
+		if (this._node) {
+			this._node.remove();
+		}
+		if (!id) {
+			this._change();
+			return;
+		}
+		let tmpl = this.urlTemplate,
+			n = $.create("link");
 		n.addEventListener("load", () => this._change());
 		n.rel = "stylesheet";
 		n.type = "text/css";
@@ -70,5 +80,4 @@ export default class Theme extends EventDispatcher {
 	_toggleTheme() {
 		this.dark = !this.dark;
 	}
-
 }

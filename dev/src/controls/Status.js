@@ -21,7 +21,9 @@ import app from "../app";
 
 export default class Status {
 	constructor(el) {
-		if (!el) { el = document.createElement("div"); }
+		if (!el) {
+			el = document.createElement("div");
+		}
 		this.el = el;
 		$.addClass(el, "status");
 
@@ -30,35 +32,42 @@ export default class Status {
 	}
 
 	distract() {
-		this.el.innerHTML = '<svg class="icon distractor anim-spin"><use xlink:href="#distractor"></use></svg>';
+		this.el.innerHTML =
+			'<svg class="icon distractor anim-spin"><use xlink:href="#distractor"></use></svg>';
 		this._show();
 		return this;
 	}
 
-	hide(t=0) {
+	hide(t = 0) {
 		this._clearTimeout();
 		if (t) {
-			this._timeoutId = setTimeout(()=>this._hide(), t*1000);
-		} else { this._hide(); }
+			this._timeoutId = setTimeout(() => this._hide(), t * 1000);
+		} else {
+			this._hide();
+		}
 		return this;
 	}
 
 	success() {
-		this.el.innerHTML = '<svg class="icon success"><use xlink:href="#check"></use></svg>';
+		this.el.innerHTML =
+			'<svg class="icon success"><use xlink:href="#check"></use></svg>';
 		this._show();
 		return this;
 	}
 
 	error(msg) {
 		let el = this.el;
-		el.innerHTML = '<svg class="icon alert"><use xlink:href="#alert"></use></svg>';
+		el.innerHTML =
+			'<svg class="icon alert"><use xlink:href="#alert"></use></svg>';
 		this._show();
 		this._ttMsg = msg;
 		return this;
 	}
 
 	_showTooltip() {
-		if (!this._ttMsg) { return; }
+		if (!this._ttMsg) {
+			return;
+		}
 		app.tooltip.hover.showOn("status", this._ttMsg, this.el, true, 0);
 	}
 
@@ -80,7 +89,9 @@ export default class Status {
 	}
 
 	_clearTimeout() {
-		if (this._timeoutId == null) { return; }
+		if (this._timeoutId == null) {
+			return;
+		}
 		clearTimeout(this._timeoutId);
 		this._timeoutId = null;
 	}

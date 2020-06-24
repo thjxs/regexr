@@ -1,114 +1,110 @@
 /*
-* EventDispatcher
-* Visit http://createjs.com/ for documentation, updates and examples.
-*
-* Copyright (c) 2010 gskinner.com, inc.
-*
-* Permission is hereby granted, free of charge, to any person
-* obtaining a copy of this software and associated documentation
-* files (the "Software"), to deal in the Software without
-* restriction, including without limitation the rights to use,
-* copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the
-* Software is furnished to do so, subject to the following
-* conditions:
-*
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-* OTHER DEALINGS IN THE SOFTWARE.
-*/
-
-
+ * EventDispatcher
+ * Visit http://createjs.com/ for documentation, updates and examples.
+ *
+ * Copyright (c) 2010 gskinner.com, inc.
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ */
 
 // constructor:
 /**
-* EventDispatcher provides methods for managing queues of event listeners and dispatching events.
-*
-* You can either extend EventDispatcher or mix its methods into an existing prototype or instance by using the
-* EventDispatcher {{#crossLink "EventDispatcher/initialize"}}{{/crossLink}} method.
-* 
-* Together with the CreateJS Event class, EventDispatcher provides an extended event model that is based on the
-* DOM Level 2 event model, including addEventListener, removeEventListener, and dispatchEvent. It supports
-* bubbling / capture, preventDefault, stopPropagation, stopImmediatePropagation, and handleEvent.
-* 
-* EventDispatcher also exposes a {{#crossLink "EventDispatcher/on"}}{{/crossLink}} method, which makes it easier
-* to create scoped listeners, listeners that only run once, and listeners with associated arbitrary data. The 
-* {{#crossLink "EventDispatcher/off"}}{{/crossLink}} method is merely an alias to
-* {{#crossLink "EventDispatcher/removeEventListener"}}{{/crossLink}}.
-* 
-* Another addition to the DOM Level 2 model is the {{#crossLink "EventDispatcher/removeAllEventListeners"}}{{/crossLink}}
-* method, which can be used to listeners for all events, or listeners for a specific event. The Event object also 
-* includes a {{#crossLink "Event/remove"}}{{/crossLink}} method which removes the active listener.
-*
-* <h4>Example</h4>
-* Add EventDispatcher capabilities to the "MyClass" class.
-*
-*      EventDispatcher.initialize(MyClass.prototype);
-*
-* Add an event (see {{#crossLink "EventDispatcher/addEventListener"}}{{/crossLink}}).
-*
-*      instance.addEventListener("eventName", handlerMethod);
-*      function handlerMethod(event) {
-*          console.log(event.target + " Was Clicked");
-*      }
-*
-* <b>Maintaining proper scope</b><br />
-* Scope (ie. "this") can be be a challenge with events. Using the {{#crossLink "EventDispatcher/on"}}{{/crossLink}}
-* method to subscribe to events simplifies this.
-*
-*      instance.addEventListener("click", function(event) {
-*          console.log(instance == this); // false, scope is ambiguous.
-*      });
-*      
-*      instance.on("click", function(event) {
-*          console.log(instance == this); // true, "on" uses dispatcher scope by default.
-*      });
-* 
-* If you want to use addEventListener instead, you may want to use function.bind() or a similar proxy to manage
-* scope.
-*
-* <b>Browser support</b>
-* The event model in CreateJS can be used separately from the suite in any project, however the inheritance model
-* requires modern browsers (IE9+).
-*      
-*
-* @class EventDispatcher
-* @constructor
-**/
+ * EventDispatcher provides methods for managing queues of event listeners and dispatching events.
+ *
+ * You can either extend EventDispatcher or mix its methods into an existing prototype or instance by using the
+ * EventDispatcher {{#crossLink "EventDispatcher/initialize"}}{{/crossLink}} method.
+ *
+ * Together with the CreateJS Event class, EventDispatcher provides an extended event model that is based on the
+ * DOM Level 2 event model, including addEventListener, removeEventListener, and dispatchEvent. It supports
+ * bubbling / capture, preventDefault, stopPropagation, stopImmediatePropagation, and handleEvent.
+ *
+ * EventDispatcher also exposes a {{#crossLink "EventDispatcher/on"}}{{/crossLink}} method, which makes it easier
+ * to create scoped listeners, listeners that only run once, and listeners with associated arbitrary data. The
+ * {{#crossLink "EventDispatcher/off"}}{{/crossLink}} method is merely an alias to
+ * {{#crossLink "EventDispatcher/removeEventListener"}}{{/crossLink}}.
+ *
+ * Another addition to the DOM Level 2 model is the {{#crossLink "EventDispatcher/removeAllEventListeners"}}{{/crossLink}}
+ * method, which can be used to listeners for all events, or listeners for a specific event. The Event object also
+ * includes a {{#crossLink "Event/remove"}}{{/crossLink}} method which removes the active listener.
+ *
+ * <h4>Example</h4>
+ * Add EventDispatcher capabilities to the "MyClass" class.
+ *
+ *      EventDispatcher.initialize(MyClass.prototype);
+ *
+ * Add an event (see {{#crossLink "EventDispatcher/addEventListener"}}{{/crossLink}}).
+ *
+ *      instance.addEventListener("eventName", handlerMethod);
+ *      function handlerMethod(event) {
+ *          console.log(event.target + " Was Clicked");
+ *      }
+ *
+ * <b>Maintaining proper scope</b><br />
+ * Scope (ie. "this") can be be a challenge with events. Using the {{#crossLink "EventDispatcher/on"}}{{/crossLink}}
+ * method to subscribe to events simplifies this.
+ *
+ *      instance.addEventListener("click", function(event) {
+ *          console.log(instance == this); // false, scope is ambiguous.
+ *      });
+ *
+ *      instance.on("click", function(event) {
+ *          console.log(instance == this); // true, "on" uses dispatcher scope by default.
+ *      });
+ *
+ * If you want to use addEventListener instead, you may want to use function.bind() or a similar proxy to manage
+ * scope.
+ *
+ * <b>Browser support</b>
+ * The event model in CreateJS can be used separately from the suite in any project, however the inheritance model
+ * requires modern browsers (IE9+).
+ *
+ *
+ * @class EventDispatcher
+ * @constructor
+ **/
 import Event from "./Event.js";
 
 export default class EventDispatcher {
-	
 	constructor() {
-	// private properties:
+		// private properties:
 		/**
 		 * @protected
 		 * @property _listeners
 		 * @type Object
 		 **/
 		this._listeners = null;
-		
+
 		/**
 		 * @protected
 		 * @property _captureListeners
 		 * @type Object
 		 **/
 		this._captureListeners = null;
-		
-		
+
 		/**
 		 * A shortcut to the removeEventListener method, with the same parameters and return value. This is a companion to the
 		 * .on method.
-		 * 
-		 * <b>IMPORTANT:</b> To remove a listener added with `on`, you must pass in the returned wrapper function as the listener. See 
+		 *
+		 * <b>IMPORTANT:</b> To remove a listener added with `on`, you must pass in the returned wrapper function as the listener. See
 		 * {{#crossLink "EventDispatcher/on"}}{{/crossLink}} for an example.
 		 *
 		 * @method off
@@ -116,17 +112,16 @@ export default class EventDispatcher {
 		 * @param {Function | Object} listener The listener function or object.
 		 * @param {Boolean} [useCapture] For events that bubble, indicates whether to listen for the event in the capture or bubbling/target phase.
 		 **/
-		 this.off = this.removeEventListener;
+		this.off = this.removeEventListener;
 	}
-	
-	
-// static public methods:
+
+	// static public methods:
 	/**
 	 * Static initializer to mix EventDispatcher methods into a target object or prototype.
-	 * 
+	 *
 	 * 		EventDispatcher.initialize(MyClass.prototype); // add to the prototype of the class
 	 * 		EventDispatcher.initialize(myObject); // add to a specific instance
-	 * 
+	 *
 	 * @method initialize
 	 * @static
 	 * @param {Object} target The target object to inject EventDispatcher methods into. This can be an instance or a
@@ -135,16 +130,15 @@ export default class EventDispatcher {
 	static EventDispatcher(target) {
 		target.addEventListener = p.addEventListener;
 		target.on = p.on;
-		target.removeEventListener = target.off =  p.removeEventListener;
+		target.removeEventListener = target.off = p.removeEventListener;
 		target.removeAllEventListeners = p.removeAllEventListeners;
 		target.hasEventListener = p.hasEventListener;
 		target.dispatchEvent = p.dispatchEvent;
 		target._dispatchEvent = p._dispatchEvent;
 		target.willTrigger = p.willTrigger;
-	};
-	
+	}
 
-// public methods:
+	// public methods:
 	/**
 	 * Adds the specified event listener. Note that adding multiple listeners to the same function will result in
 	 * multiple callbacks getting fired.
@@ -166,31 +160,36 @@ export default class EventDispatcher {
 	addEventListener(type, listener, useCapture) {
 		let listeners;
 		if (useCapture) {
-			listeners = this._captureListeners = this._captureListeners||{};
+			listeners = this._captureListeners = this._captureListeners || {};
 		} else {
-			listeners = this._listeners = this._listeners||{};
+			listeners = this._listeners = this._listeners || {};
 		}
 		let arr = listeners[type];
-		if (arr) { this.removeEventListener(type, listener, useCapture); }
+		if (arr) {
+			this.removeEventListener(type, listener, useCapture);
+		}
 		arr = listeners[type]; // remove may have deleted the array
-		if (!arr) { listeners[type] = [listener];  }
-		else { arr.push(listener); }
+		if (!arr) {
+			listeners[type] = [listener];
+		} else {
+			arr.push(listener);
+		}
 		return listener;
-	};
-	
+	}
+
 	/**
 	 * A shortcut method for using addEventListener that makes it easier to specify an execution scope, have a listener
 	 * only run once, associate arbitrary data with the listener, and remove the listener.
-	 * 
+	 *
 	 * This method works by creating an anonymous wrapper function and subscribing it with addEventListener.
 	 * The wrapper function is returned for use with `removeEventListener` (or `off`).
-	 * 
+	 *
 	 * <b>IMPORTANT:</b> To remove a listener added with `on`, you must pass in the returned wrapper function as the listener, or use
 	 * {{#crossLink "Event/remove"}}{{/crossLink}}. Likewise, each time you call `on` a NEW wrapper function is subscribed, so multiple calls
 	 * to `on` with the same params will create multiple listeners.
-	 * 
+	 *
 	 * <h4>Example</h4>
-	 * 
+	 *
 	 * 		var listener = myBtn.on("click", handleClick, null, false, {count:3});
 	 * 		function handleClick(evt, data) {
 	 * 			data.count -= 1;
@@ -201,7 +200,7 @@ export default class EventDispatcher {
 	 * 				// alternately: evt.remove();
 	 * 			}
 	 * 		}
-	 * 
+	 *
 	 * @method on
 	 * @param {String} type The string type of the event.
 	 * @param {Function | Object} listener An object with a handleEvent method, or a function that will be called when
@@ -214,15 +213,19 @@ export default class EventDispatcher {
 	 **/
 	on(type, listener, scope, once, data, useCapture) {
 		if (listener.handleEvent) {
-			scope = scope||listener;
+			scope = scope || listener;
 			listener = listener.handleEvent;
 		}
-		scope = scope||this;
-		return this.addEventListener(type, function(evt) {
+		scope = scope || this;
+		return this.addEventListener(
+			type,
+			function (evt) {
 				listener.call(scope, evt, data);
-				once&&evt.remove();
-			}, useCapture);
-	};
+				once && evt.remove();
+			},
+			useCapture
+		);
+	}
 
 	/**
 	 * Removes the specified event listener.
@@ -242,17 +245,25 @@ export default class EventDispatcher {
 	 **/
 	removeEventListener(type, listener, useCapture) {
 		let listeners = useCapture ? this._captureListeners : this._listeners;
-		if (!listeners) { return; }
+		if (!listeners) {
+			return;
+		}
 		let arr = listeners[type];
-		if (!arr) { return; }
-		for (let i=0,l=arr.length; i<l; i++) {
+		if (!arr) {
+			return;
+		}
+		for (let i = 0, l = arr.length; i < l; i++) {
 			if (arr[i] === listener) {
-				if (l==1) { delete(listeners[type]); } // allows for faster checks.
-				else { arr.splice(i,1); }
+				if (l == 1) {
+					delete listeners[type];
+				} // allows for faster checks.
+				else {
+					arr.splice(i, 1);
+				}
 				break;
 			}
 		}
-	};
+	}
 
 	/**
 	 * Removes all listeners for the specified type, or all listeners of all types.
@@ -269,12 +280,17 @@ export default class EventDispatcher {
 	 * @param {String} [type] The string type of the event. If omitted, all listeners for all types will be removed.
 	 **/
 	removeAllEventListeners(type) {
-		if (!type) { this._listeners = this._captureListeners = null; }
-		else {
-			if (this._listeners) { delete(this._listeners[type]); }
-			if (this._captureListeners) { delete(this._captureListeners[type]); }
+		if (!type) {
+			this._listeners = this._captureListeners = null;
+		} else {
+			if (this._listeners) {
+				delete this._listeners[type];
+			}
+			if (this._captureListeners) {
+				delete this._captureListeners[type];
+			}
 		}
-	};
+	}
 
 	/**
 	 * Dispatches the specified event to all listeners.
@@ -301,34 +317,42 @@ export default class EventDispatcher {
 		if (typeof eventObj == "string") {
 			// skip everything if there's no listeners and it doesn't bubble:
 			let listeners = this._listeners;
-			if (!bubbles && (!listeners || !listeners[eventObj])) { return true; }
+			if (!bubbles && (!listeners || !listeners[eventObj])) {
+				return true;
+			}
 			eventObj = new Event(eventObj, bubbles, cancelable);
 		} else if (eventObj.target && eventObj.clone) {
 			// redispatching an active event object, so clone it:
 			eventObj = eventObj.clone();
 		}
-		
+
 		// TODO: it would be nice to eliminate this. Maybe in favour of evtObj instanceof Event? Or !!evtObj.createEvent
-		try { eventObj.target = this; } catch (e) {} // try/catch allows redispatching of native events
+		try {
+			eventObj.target = this;
+		} catch (e) {} // try/catch allows redispatching of native events
 
 		if (!eventObj.bubbles || !this.parent) {
 			this._dispatchEvent(eventObj, 2);
 		} else {
-			let top=this, list=[top];
-			while (top.parent) { list.push(top = top.parent); }
-			let i, l=list.length;
+			let top = this,
+				list = [top];
+			while (top.parent) {
+				list.push((top = top.parent));
+			}
+			let i,
+				l = list.length;
 
 			// capture & atTarget
-			for (i=l-1; i>=0 && !eventObj.propagationStopped; i--) {
-				list[i]._dispatchEvent(eventObj, 1+(i==0));
+			for (i = l - 1; i >= 0 && !eventObj.propagationStopped; i--) {
+				list[i]._dispatchEvent(eventObj, 1 + (i == 0));
 			}
 			// bubbling
-			for (i=1; i<l && !eventObj.propagationStopped; i++) {
+			for (i = 1; i < l && !eventObj.propagationStopped; i++) {
 				list[i]._dispatchEvent(eventObj, 3);
 			}
 		}
 		return !eventObj.defaultPrevented;
-	};
+	}
 
 	/**
 	 * Indicates whether there is at least one listener for the specified event type.
@@ -337,15 +361,19 @@ export default class EventDispatcher {
 	 * @return {Boolean} Returns true if there is at least one listener for the specified event.
 	 **/
 	hasEventListener(type) {
-		let listeners = this._listeners, captureListeners = this._captureListeners;
-		return !!((listeners && listeners[type]) || (captureListeners && captureListeners[type]));
-	};
-	
+		let listeners = this._listeners,
+			captureListeners = this._captureListeners;
+		return !!(
+			(listeners && listeners[type]) ||
+			(captureListeners && captureListeners[type])
+		);
+	}
+
 	/**
 	 * Indicates whether there is at least one listener for the specified event type on this object or any of its
 	 * ancestors (parent, parent's parent, etc). A return value of true indicates that if a bubbling event of the
 	 * specified type is dispatched from this object, it will trigger at least one listener.
-	 * 
+	 *
 	 * This is similar to {{#crossLink "EventDispatcher/hasEventListener"}}{{/crossLink}}, but it searches the entire
 	 * event flow for a listener, not just this object.
 	 * @method willTrigger
@@ -355,11 +383,13 @@ export default class EventDispatcher {
 	willTrigger(type) {
 		let o = this;
 		while (o) {
-			if (o.hasEventListener(type)) { return true; }
+			if (o.hasEventListener(type)) {
+				return true;
+			}
 			o = o.parent;
 		}
 		return false;
-	};
+	}
 
 	/**
 	 * @method toString
@@ -367,10 +397,9 @@ export default class EventDispatcher {
 	 **/
 	toString() {
 		return "[EventDispatcher]";
-	};
+	}
 
-
-// private methods:
+	// private methods:
 	/**
 	 * @method _dispatchEvent
 	 * @param {Object | Event} eventObj
@@ -378,25 +407,39 @@ export default class EventDispatcher {
 	 * @protected
 	 **/
 	_dispatchEvent(eventObj, eventPhase) {
-		let l, arr, listeners = (eventPhase <= 2) ? this._captureListeners : this._listeners;
-		if (eventObj && listeners && (arr = listeners[eventObj.type]) && (l=arr.length)) {
-			try { eventObj.currentTarget = this; } catch (e) {}
-			try { eventObj.eventPhase = eventPhase|0; } catch (e) {}
+		let l,
+			arr,
+			listeners = eventPhase <= 2 ? this._captureListeners : this._listeners;
+		if (
+			eventObj &&
+			listeners &&
+			(arr = listeners[eventObj.type]) &&
+			(l = arr.length)
+		) {
+			try {
+				eventObj.currentTarget = this;
+			} catch (e) {}
+			try {
+				eventObj.eventPhase = eventPhase | 0;
+			} catch (e) {}
 			eventObj.removed = false;
-			
+
 			arr = arr.slice(); // to avoid issues with items being removed or added during the dispatch
-			for (let i=0; i<l && !eventObj.immediatePropagationStopped; i++) {
+			for (let i = 0; i < l && !eventObj.immediatePropagationStopped; i++) {
 				let o = arr[i];
-				if (o.handleEvent) { o.handleEvent(eventObj); }
-				else { o(eventObj); }
+				if (o.handleEvent) {
+					o.handleEvent(eventObj);
+				} else {
+					o(eventObj);
+				}
 				if (eventObj.removed) {
-					this.off(eventObj.type, o, eventPhase==1);
+					this.off(eventObj.type, o, eventPhase == 1);
 					eventObj.removed = false;
 				}
 			}
 		}
-		if (eventPhase === 2) { this._dispatchEvent(eventObj, 2.1); }
-	};
-
+		if (eventPhase === 2) {
+			this._dispatchEvent(eventObj, 2.1);
+		}
+	}
 }
-
